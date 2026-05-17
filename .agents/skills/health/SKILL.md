@@ -80,6 +80,9 @@ description: リポジトリ改修中に意図せず残る状態（working tree,
 - コマンド: `git branch -vv` および `git for-each-ref --sort=committerdate --format='%(refname:short) %(upstream:track) %(committerdate:relative)' refs/heads/`（古い順）
 - PR 検出（**1 度だけ batch 取得**）: `gh pr list --state all --json number,state,mergedAt,headRefName --limit 100` を 1 回実行し、client side で local branch 名と `headRefName` を join する（branch ごとに gh を呼ばない）
 - 各 branch について:
+  - `worktree-agent-<id>` パターン（Claude Code harness が作る合成 branch）:
+    - 対応する `.claude/worktrees/agent-<id>/` worktree が **存在する** → 推奨なし（使用中）
+    - 対応する worktree が **存在しない** → タグ `drive synthetic` を付与し、`prune`（`git branch -D <branch>`。親 worktree が削除済みの orphan synthetic branch。[Issue #71](https://github.com/ozzy-labs/skills/issues/71)）
   - merged 済みの PR が存在し、かつ merge base 以降に追加 commit が **ない** → `delete`（PR 番号を表示）
   - merged 済みの PR が存在し、かつ merge base 以降に追加 commit が **ある** → `要確認`（PR 番号と追加 commit 数を表示。merge 後に作業継続したケース）
   - upstream なし、かつ最終 commit から 14 日以上 → `要確認`
@@ -89,6 +92,22 @@ description: リポジトリ改修中に意図せず残る状態（working tree,
 
 「追加 commit の有無」の判定: PR の merge commit と local branch の `git rev-list --count <merge-commit>..<branch>` を比較し、結果が 0 なら追加なし、1 以上なら追加あり。
 
+`worktree-agent-<id>` の id 部分は `.claude/worktrees/agent-<id>/` の id と 1:1 対応する。判定手順:
+
+1. #7 worktree チェックで取得した `git worktree list --porcelain` 結果から、`.claude/worktrees/agent-<id>/` パスの `<id>` を抽出して集合を作る（例: `{a33c59a3504b6dc3e, a6658497dd970cd6d}`）
+2. 各 local branch 名のうち `worktree-agent-` で始まるものから prefix を除いた残り部分を id 候補として抽出
+3. id 候補が手順 1 の集合に **含まれない** branch を orphan synthetic と判定する
+
+branch ごとに `git worktree list` を呼ばない（#7 の結果を使い回す）。
+
+表示例:
+
+```text
+#5 local branch:
+  worktree-agent-a33c59...    drive synthetic, parent worktree missing  → prune (git branch -D)
+  ci/playwright-...           merged (PR #117)                          → delete
+```
+
 #### 6. remote tracking
 
 - コマンド: `git remote prune origin --dry-run`
@@ -97,7 +116,21 @@ description: リポジトリ改修中に意図せず残る状態（working tree,
 #### 7. worktree
 
 - コマンド: `git worktree list --porcelain`
-- main worktree 以外を列挙する。関連 branch が merged または存在しない → `prune`、それ以外 → 推奨なし
+- main worktree 以外を列挙する。`locked` 状態の worktree も漏らさず表示する（`git worktree list --porcelain` は `locked` も含めて出力するため通常通り扱えばよい）
+- 各 worktree について判定:
+  - パスが `.claude/worktrees/agent-*` パターン → タグ `drive orphan` を付与し、`prune` 推奨（`/drive` skill の Phase Final-2 cleanup を通らなかった残骸の可能性。異常終了 / interrupt / 手動 kill 等）
+  - `locked` 状態 → タグ `locked` を併記。`prune` 推奨コマンドは `git worktree remove -f -f <path>` を提示する（`-f -f` の二重 force は Claude Code harness の `lock` 解除のため必須。[Issue #71](https://github.com/ozzy-labs/skills/issues/71)）
+  - 関連 branch が merged または存在しない → `prune`
+  - それ以外 → 推奨なし
+
+タグは推奨アクションとは別軸の **分類ラベル** として表示する（推奨アクション語彙は固定のまま）。表示例:
+
+```text
+#7 worktree:
+  /home/.../repo/.claude/worktrees/agent-a33c59... [ci/playwright-...]  drive orphan, locked  → prune (git worktree remove -f -f)
+  /home/.../repo/.claude/worktrees/agent-a6658... [docs/html-js-...]    drive orphan, locked  → prune (git worktree remove -f -f)
+  /home/.../repo/../old-feature                    [feat/old]           → prune
+```
 
 #### 8. submodule
 
