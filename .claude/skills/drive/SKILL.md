@@ -38,6 +38,8 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch, AskUser
 - **subagent_type:** `general-purpose`
 - **prompt:** subagent から slash command は呼べないため、`.agents/skills/drive/SKILL.md` を Read させ、target #N について単一モードのワークフロー（Phase 1-5）を実行するよう指示する。`--merge` 指定時は Phase 4 まで完了し、自 PR の merged まで polling して終了させる。最終結果は JSON で返させる
 - **main への checkout 禁止（必ず prompt に明記）:** subagent は自 worktree branch で完結する。`git checkout main` / `git switch main` / `git checkout HEAD~` 等で HEAD を移動させない。worktree は親側で削除されるため main へ戻す必要はない。これを怠ると共有 git directory 経由で親 worktree の `HEAD` / `index` が汚染される（[Issue #66](https://github.com/ozzy-labs/skills/issues/66) 参照）
+- **`--delete-branch` 禁止（必ず prompt に明記）:** subagent が auto-merge をセットする際、`gh pr merge --auto --squash` までに留め、`--delete-branch` は付けない。自 worktree が握る branch を削除しようとして `fatal: '<branch>' is already used by worktree at ...` エラーになる。ローカル branch / worktree の整理は親側 Phase Final で一括処理する（[Issue #69](https://github.com/ozzy-labs/skills/issues/69)）
+- **scope 外波及チェック（必ず prompt に明記）:** subagent が enum / field / CLI flag を追加した場合、リポ全体で対応する help 文字列・エラーメッセージ・サンプル/docs を grep し、同期を確認する。同期されていなければ可能なら自 PR に含める。自 scope を明確に超える場合は戻り値 JSON の `cross_cutting_gaps: string[]` フィールドに `<file>:<line> — <symbol> not synced` 形式で記録し、親の Phase Final-3 audit に集約する（[Issue #70](https://github.com/ozzy-labs/skills/issues/70)）
 - **依存元 wave がある場合のベースブランチ:**
   - `--merge` 指定 + 依存元が merged → main から作成
   - `--merge` 指定 + 依存元が auto-merge enabled（未マージ）→ main を pull してから作成（取り込まれていれば main ベース、未取り込みなら依存元 headRefName ベース）
@@ -74,5 +76,5 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch, AskUser
 
 1. **`--merge` 指定時:** 各 subagent が自 PR のマージまで完了させているため、Phase Final 集約レポートを出力して終了する
 2. **`--merge` 未指定時:** Phase Final レポート出力後、AskUserQuestion を呼び出す
-   - **「全 PR を一括マージする」** → 各 PR に対し順次 `gh pr merge --squash --delete-branch` を依存順に実行
-   - **「個別に対応する」** → 終了する
+   - **「全 PR を一括マージする」** → 各 PR に対し順次 `gh pr merge --squash --delete-branch` を依存順に実行する。すべての PR が merged になった後、Phase Final-2 cleanup を **`merge-ready` だった subagent worktree に対して再度実行する**（マージ完了で cleanup 条件 `merged` を満たすようになるため）。cleanup 結果を追加レポートとして出力する
+   - **「個別に対応する」** → 終了する。`merge-ready` の worktree は残置されたまま。ユーザーがマージ後に `/health` 領域 #7 または手動で整理する
