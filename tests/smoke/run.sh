@@ -134,6 +134,9 @@ assert_success "install.sh syntax check" \
 assert_success "setup-local-linux.sh syntax check" \
   bash -n scripts/setup-local-linux.sh
 
+assert_success "setup-local-macos.sh syntax check" \
+  bash -n scripts/setup-local-macos.sh
+
 assert_success "setup-zsh-linux.sh syntax check" \
   bash -n scripts/setup-zsh-linux.sh
 

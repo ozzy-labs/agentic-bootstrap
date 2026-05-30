@@ -3,7 +3,9 @@
 # shellcheck disable=SC2016  # シェル設定に遅延展開させる文字列をそのまま書き込む
 # scripts/lib/mise.sh
 # mise のインストール・初期化・グローバルツール管理ヘルパー。
-# このファイルは source して利用する。前提: lib/shell_config.sh が事前に source されていること。
+# このファイルは source して利用する。
+# 前提: lib/detect.sh, lib/shell_config.sh が事前に source されていること
+# （`ensure_mise_installed` が `_is_darwin` と `add_to_shell_config` を利用する）。
 
 # mise バイナリのパス
 MISE_BIN="${MISE_BIN:-$HOME/.local/bin/mise}"
@@ -46,10 +48,31 @@ ensure_mise_installed() {
   # 注意: パターンは書き込まれた文字列内に実在する部分列を使う必要がある。
   # eval 行には `" activate zsh)"` のように途中に `"` が入るため、
   # コメント行の固定文字列（"# mise（バージョン管理）"）をアンカーとして利用する。
-  add_to_shell_config ~/.zshrc '# mise（バージョン管理）' '# mise（バージョン管理）
-eval "$("$HOME/.local/bin/mise" activate zsh)"' "~/.zshrc に mise 初期化を追加しました"
-  add_to_shell_config ~/.bashrc '# mise（バージョン管理）' '# mise（バージョン管理）
-eval "$("$HOME/.local/bin/mise" activate bash)"' "~/.bashrc に mise 初期化を追加しました"
+  #
+  # rc ファイルの差異:
+  #   Linux  : ~/.zshrc, ~/.bashrc
+  #   macOS  : ~/.zshrc, ~/.bash_profile, ~/.bashrc
+  #     （macOS のターミナル.app は bash をログインシェルで起動するため
+  #      ~/.bash_profile が一次読み込み対象。~/.bashrc も非ログインシェル向けに残す）
+  local rc_files=("$HOME/.zshrc")
+  if _is_darwin; then
+    rc_files+=("$HOME/.bash_profile")
+  fi
+  rc_files+=("$HOME/.bashrc")
+
+  local rc_file rc_display shell_kind activate_cmd
+  for rc_file in "${rc_files[@]}"; do
+    case "$rc_file" in
+    *.zshrc) shell_kind="zsh" ;;
+    *) shell_kind="bash" ;;
+    esac
+    # 表示用: $HOME を `~` に置換してメッセージ短縮（ログの可読性のため）
+    rc_display="~${rc_file#"$HOME"}"
+    activate_cmd='# mise（バージョン管理）
+eval "$("$HOME/.local/bin/mise" activate '"$shell_kind"')"'
+    add_to_shell_config "$rc_file" '# mise（バージョン管理）' "$activate_cmd" \
+      "$rc_display に mise 初期化を追加しました"
+  done
 
   _MISE_INITIALIZED=1
   return 0

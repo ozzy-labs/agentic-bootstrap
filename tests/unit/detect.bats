@@ -42,3 +42,33 @@ setup() {
     skip "/etc/os-release not present"
   fi
 }
+
+# ------------------------------------------------------------------
+# _is_darwin
+# ------------------------------------------------------------------
+# `uname -s` をシム関数で差し替えて両ケースを確認する。
+# 関数定義をローカル uname 関数で上書き → サブシェル run で評価。
+
+@test "_is_darwin: returns 0 when uname -s reports Darwin" {
+  uname() { echo "Darwin"; }
+  export -f uname
+  run _is_darwin
+  [ "$status" -eq 0 ]
+}
+
+@test "_is_darwin: returns non-zero when uname -s reports Linux" {
+  uname() { echo "Linux"; }
+  export -f uname
+  run _is_darwin
+  [ "$status" -ne 0 ]
+}
+
+@test "_is_darwin: returns the actual host result (smoke)" {
+  # 実際のホストでも呼べることを確認（CI: Linux ホスト → non-zero 想定）
+  run _is_darwin
+  if [ "$(uname -s)" = "Darwin" ]; then
+    [ "$status" -eq 0 ]
+  else
+    [ "$status" -ne 0 ]
+  fi
+}
