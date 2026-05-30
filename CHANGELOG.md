@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.3.0](https://github.com/ozzy-labs/agentic-bootstrap/compare/v0.2.0...v0.3.0) (2026-05-30)
+
+
+### Features
+
+* **install:** add tmux as opt-in + sensible .tmux.conf (Linux) ([#150](https://github.com/ozzy-labs/agentic-bootstrap/issues/150)) ([25f29e2](https://github.com/ozzy-labs/agentic-bootstrap/commit/25f29e280a3b7873f3acb7ebd2ecb672798042c4))
+* **install:** add zellij as opt-in multiplexer ([#149](https://github.com/ozzy-labs/agentic-bootstrap/issues/149)) ([c6d7044](https://github.com/ozzy-labs/agentic-bootstrap/commit/c6d70448d7cef40d98471d908418fec778d5e7b0))
+
+
+### Bug Fixes
+
+* **dotfiles:** include trivy in mise global config ([#153](https://github.com/ozzy-labs/agentic-bootstrap/issues/153)) ([20fbabc](https://github.com/ozzy-labs/agentic-bootstrap/commit/20fbabc107efe271394ff4b4dd233d570763003b)), closes [#144](https://github.com/ozzy-labs/agentic-bootstrap/issues/144)
+* **dotfiles:** include zellij in mise global config ([#156](https://github.com/ozzy-labs/agentic-bootstrap/issues/156)) ([fba52f0](https://github.com/ozzy-labs/agentic-bootstrap/commit/fba52f08c1d82c83cc95ca99801ec8f39efa28bb))
+* **install:** legacy PPA .sources detection and bundled .mise.toml auto-trust ([#140](https://github.com/ozzy-labs/agentic-bootstrap/issues/140)) ([1036805](https://github.com/ozzy-labs/agentic-bootstrap/commit/10368051c9106f8c099369daa794a09c03e56178))
+
+
+### Refactoring
+
+* **scripts:** unify Linux/macOS mise helpers via lib/mise.sh ([#157](https://github.com/ozzy-labs/agentic-bootstrap/issues/157)) ([7804715](https://github.com/ozzy-labs/agentic-bootstrap/commit/78047150e64da56b361cc810a028c19f55b70ba5))
+
+
+### Tests
+
+* **integration:** add upgrade-from-prior-version scenario matrix ([#154](https://github.com/ozzy-labs/agentic-bootstrap/issues/154)) ([e27cd7f](https://github.com/ozzy-labs/agentic-bootstrap/commit/e27cd7f86772487aea8ca6bb3113907425ce831c)), closes [#142](https://github.com/ozzy-labs/agentic-bootstrap/issues/142)
+
 ## [0.2.0](https://github.com/ozzy-labs/agentic-bootstrap/compare/v0.1.4...v0.2.0) (2026-05-06)
 
 
