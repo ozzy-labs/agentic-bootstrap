@@ -776,6 +776,41 @@ INSTALL_TMUX=1 ./install.sh local
 - Default prefix (C-b) kept; no vi/emacs mode-keys; no plugin manager
 ```
 
+**7.1.7 `curl ... | bash` aborts with "TTY を確保できませんでした"**
+
+Some environments (notably certain WSL2 configurations, containers without a controlling terminal, or nested subshells) cannot reach `/dev/tty` from the bash subshell spawned by `curl ... | bash`. In these cases, the install script can no longer show interactive prompts, so it now aborts with a clear error rather than silently proceeding with default values for hidden prompts.
+
+```bash
+# Error message example
+⚠️  対話プロンプト用の TTY を確保できませんでした
+ℹ️  考えられる原因:
+    - stdin が pipe で、/dev/tty へのフォールバックも失敗した
+    - curl ... | bash 実行時に /dev/tty が利用不可（WSL2 の一部環境 / コンテナ / サブシェル）
+ℹ️  対処法:
+    1. ファイル経由で実行する（推奨）: ...
+    2. プロセス置換で実行する: ...
+    3. 非対話モードで実行する: ...
+```
+
+Pick one of the following workarounds:
+
+```bash
+# (a) File-based execution — most reliable, also lets you inspect the script first
+curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \
+  -o /tmp/install.sh
+bash /tmp/install.sh local
+
+# (b) Process substitution — keeps the one-liner shape while restoring a real TTY for stdin
+bash <(curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh) local
+
+# (c) Non-interactive mode — accept all defaults (install every category)
+curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \
+  | AGENTIC_BOOTSTRAP_ASSUME_YES=1 bash -s -- local
+```
+
 ### 7.2 Checking Logs
 
 ```bash

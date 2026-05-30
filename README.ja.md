@@ -776,6 +776,41 @@ INSTALL_TMUX=1 ./install.sh local
 - prefix キーはデフォルト（C-b）維持、vi/emacs mode-keys / プラグインマネージャは入れない
 ```
 
+**7.1.7 `curl ... | bash` で対話プロンプトが表示されない場合**
+
+一部の環境（特定の WSL2 構成、controlling terminal を持たないコンテナ、ネストした subshell など）では、`curl ... | bash` で起動した bash サブシェルから `/dev/tty` が open できないことがある。この場合、対話プロンプトを表示できないため、隠れたプロンプトに既定値で勝手に進むのではなく、明示的なエラーで中断するようになっている。
+
+```bash
+# エラーメッセージ例
+⚠️  対話プロンプト用の TTY を確保できませんでした
+ℹ️  考えられる原因:
+    - stdin が pipe で、/dev/tty へのフォールバックも失敗した
+    - curl ... | bash 実行時に /dev/tty が利用不可（WSL2 の一部環境 / コンテナ / サブシェル）
+ℹ️  対処法:
+    1. ファイル経由で実行する（推奨）: ...
+    2. プロセス置換で実行する: ...
+    3. 非対話モードで実行する: ...
+```
+
+以下のいずれかの対処法を選ぶ:
+
+```bash
+# (a) ファイル経由実行（最も確実。事前にスクリプトを目視レビューも可能）
+curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \
+  -o /tmp/install.sh
+bash /tmp/install.sh local
+
+# (b) プロセス置換（ワンライナーの形を保ちつつ、stdin に実 TTY が戻る）
+bash <(curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh) local
+
+# (c) 非対話モード（既定値で全カテゴリをインストール）
+curl --proto '=https' --tlsv1.2 -fsSL \
+  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \
+  | AGENTIC_BOOTSTRAP_ASSUME_YES=1 bash -s -- local
+```
+
 ### 7.2 ログの確認方法
 
 ```bash
