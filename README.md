@@ -63,7 +63,7 @@ agentic-bootstrap/
 - 🐍 **Python Ecosystem** - mise-managed Python + uv for packages/venvs/CLI tools
 - ☁️ **Cloud CLIs** - AWS CLI v2 (default) / Azure CLI, Google Cloud CLI (opt-in)
 - 🔒 **Modern Secret Scanning** - gitleaks (2026 de-facto, actively maintained); pair with lefthook per project
-- 🎨 **Shell Experience** - zsh + oh-my-zsh + plugins (Linux), fzf / ripgrep / fd / jq / tree
+- 🎨 **Shell Experience** - zsh + oh-my-zsh + plugins (Linux), fzf / ripgrep / fd / jq / tree (opt-in: zellij multiplexer)
 - 🔄 **One-shot Upgrades** - `install.sh update` batch-refreshes mise/uv/npm-managed tools
 - 🐧 **Linux (Ubuntu/Debian-based) LTS Coverage** - CI-verified on 22.04 + 24.04; canary-tested on **26.04 Resolute Raccoon** (next LTS) so the toolchain continues to work the day 26.04 lands on WSL2
 - 🍎 **macOS Coverage** - Native `setup-local-macos.sh` keeps the same mise-first flow; canary-verified weekly on `macos-latest`
@@ -303,19 +303,21 @@ You can run it either through `install.sh` or directly via `scripts/setup-local-
    - **AWS CLI v2** - AWS resource operations (default-on)
    - **Azure CLI** - Microsoft Azure resource operations (opt-in)
    - **Google Cloud CLI** - Google Cloud Platform resource operations (opt-in)
-9. **AI Agent CLIs** (choose individually)
-   - **Claude Code** - Interactive development tool with Claude AI
-   - **Codex CLI** - OpenAI Codex CLI (code generation AI)
-   - **GitHub Copilot CLI** - GitHub Copilot coding agent for the terminal
-   - **Gemini CLI** - Google Gemini AI agent for the terminal
-   - Multi-agent support: shared skills in `.agents/skills/` (Agent Skills standard), `AGENTS.md` as common entry point, Claude Code overlays in `.claude/skills/`
-10. **AI Power Tools** (boost agent capabilities)
+9. **Terminal Multiplexer** (opt-in)
+   - **Zellij** (via mise) - Modern terminal multiplexer (opt-in; set `INSTALL_ZELLIJ=1` or select interactively)
+10. **AI Agent CLIs** (choose individually)
+    - **Claude Code** - Interactive development tool with Claude AI
+    - **Codex CLI** - OpenAI Codex CLI (code generation AI)
+    - **GitHub Copilot CLI** - GitHub Copilot coding agent for the terminal
+    - **Gemini CLI** - Google Gemini AI agent for the terminal
+    - Multi-agent support: shared skills in `.agents/skills/` (Agent Skills standard), `AGENTS.md` as common entry point, Claude Code overlays in `.claude/skills/`
+11. **AI Power Tools** (boost agent capabilities)
     - **markitdown[all]** (via uv tool) - Converts PDF / Word / Excel / PowerPoint / images / audio into Markdown
     - **tesseract-ocr** + **tesseract-ocr-jpn** (apt) - OCR backend that enables markitdown to read scanned PDFs and images
     - **ffmpeg** (apt) - Audio/video backend for markitdown transcription and video frame extraction
     - **ast-grep** (via mise) - Structural (AST-based) code search and refactor
     - **yq** (via mise) - YAML query tool; the YAML counterpart of jq
-11. **Development Utilities**
+12. **Development Utilities**
     - **just** - Task runner
     - **zoxide** - Smarter cd command with directory jumping
     - **shellcheck** (via mise) - Shell script static analysis (useful for AI-generated scripts too)
@@ -537,6 +539,7 @@ macOS counterpart to `setup-local-linux.sh`, intentionally lighter-weight: focus
 - **ast-grep / yq** (via mise) — AI power tools
 - **markitdown[all]** (via `uv tool install`)
 - **just / zoxide / shellcheck** (via mise) — dev helpers
+- **zellij** (via mise) — terminal multiplexer (opt-in; set `INSTALL_ZELLIJ=1`)
 
 **6.3.2 What Is NOT Installed (manual on macOS)**
 

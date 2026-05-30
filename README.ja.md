@@ -63,7 +63,7 @@ agentic-bootstrap/
 - 🐍 **Python エコシステム** - mise 管理の Python + uv（パッケージ・venv・CLI ツール）
 - ☁️ **クラウド CLI** - AWS CLI v2（デフォルト ON）/ Azure CLI, Google Cloud CLI（opt-in）
 - 🔒 **モダンなシークレット検知** - gitleaks（2026 デファクト、アクティブメンテ）を mise で導入、プロジェクト側の lefthook と連携
-- 🎨 **シェル体験** - zsh + oh-my-zsh + プラグイン（Ubuntu/Debian）、fzf / ripgrep / fd / jq / tree
+- 🎨 **シェル体験** - zsh + oh-my-zsh + プラグイン（Ubuntu/Debian）、fzf / ripgrep / fd / jq / tree（opt-in: zellij multiplexer）
 - 🔄 **ワンショット更新** - `install.sh update` で mise / uv / npm 管理ツールを一括更新
 - 🐧 **Ubuntu LTS 幅広くサポート** - 22.04 / 24.04 を PR / main push で CI 検証、**次期 LTS 26.04 Resolute Raccoon** も週次 canary で先行検証済み。LTS 切替直後も動作する
 - 🍎 **macOS サポート** - 専用 `setup-local-macos.sh` で同じ mise を入口にしたフローを提供。週次 canary で `macos-latest` を検証
@@ -303,19 +303,21 @@ Ubuntu/Debian 環境（WSL2 + 非 WSL Linux：Ubuntu Server / EC2 / GCE / コン
    - **AWS CLI v2** - AWS リソース操作（デフォルト ON）
    - **Azure CLI** - Microsoft Azure リソース操作（opt-in）
    - **Google Cloud CLI** - Google Cloud Platform リソース操作（opt-in）
-9. **AI エージェント CLI**（個別選択可）
-   - **Claude Code** - Claude AI との対話型開発ツール
-   - **Codex CLI** - OpenAI Codex CLI（コード生成AI）
-   - **GitHub Copilot CLI** - GitHub Copilot コーディングエージェント（ターミナル版）
-   - **Gemini CLI** - Google Gemini AI エージェント（ターミナル版）
-   - マルチエージェント対応: `.agents/skills/`（Agent Skills 標準）に共通スキル、`AGENTS.md` を共通エントリーポイント、`.claude/skills/` に Claude Code overlay
-10. **AI パワーツール**（エージェントの能力強化）
+9. **Terminal multiplexer**（opt-in）
+   - **Zellij**（mise 経由）- モダンなターミナルマルチプレクサ（opt-in。`INSTALL_ZELLIJ=1` または対話セレクタで選択）
+10. **AI エージェント CLI**（個別選択可）
+    - **Claude Code** - Claude AI との対話型開発ツール
+    - **Codex CLI** - OpenAI Codex CLI（コード生成AI）
+    - **GitHub Copilot CLI** - GitHub Copilot コーディングエージェント（ターミナル版）
+    - **Gemini CLI** - Google Gemini AI エージェント（ターミナル版）
+    - マルチエージェント対応: `.agents/skills/`（Agent Skills 標準）に共通スキル、`AGENTS.md` を共通エントリーポイント、`.claude/skills/` に Claude Code overlay
+11. **AI パワーツール**（エージェントの能力強化）
     - **markitdown[all]**（uv tool 経由）- PDF / Word / Excel / PowerPoint / 画像 / 音声 を Markdown に変換
     - **tesseract-ocr** + **tesseract-ocr-jpn**（apt）- OCR 基盤（markitdown の画像/スキャン PDF 対応を有効化）
     - **ffmpeg**（apt）- 音声・動画処理基盤（markitdown の音声転写・動画処理で利用）
     - **ast-grep**（mise 経由）- 構造的（AST ベース）コード検索・置換
     - **yq**（mise 経由）- YAML クエリツール（jq の YAML 版）
-11. **開発補助ツール**
+12. **開発補助ツール**
     - **just** - タスクランナー
     - **zoxide** - ディレクトリジャンプ機能を持つスマートな cd コマンド
     - **shellcheck**（mise 経由）- シェルスクリプトの静的解析（AI 生成スクリプトの品質担保にも有用）
@@ -537,6 +539,7 @@ SETUP_LOG=/tmp/setup.log ./install.sh local
 - **ast-grep / yq**（mise 経由）— AI パワーツール
 - **markitdown[all]**（`uv tool install` 経由）
 - **just / zoxide / shellcheck**（mise 経由）— 開発補助
+- **zellij**（mise 経由）— ターミナルマルチプレクサ（opt-in。`INSTALL_ZELLIJ=1` を設定）
 
 **6.3.2 自動化対象外（macOS では手動）**
 

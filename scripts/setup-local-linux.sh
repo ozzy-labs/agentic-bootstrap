@@ -48,6 +48,9 @@ INSTALL_GEMINI_CLI="${INSTALL_GEMINI_CLI:-1}"   # Gemini CLI
 # AIパワーツール（エージェントの文書読み込み・検索を強化）
 INSTALL_AI_POWER_TOOLS="${INSTALL_AI_POWER_TOOLS:-1}" # markitdown, tesseract-ocr(+jpn), ffmpeg, ast-grep, yq
 
+# Terminal multiplexer（opt-in）
+INSTALL_ZELLIJ="${INSTALL_ZELLIJ:-0}" # Zellij（opt-in）
+
 # 開発補助ツール
 INSTALL_DEV_TOOLS="${INSTALL_DEV_TOOLS:-1}" # just, zoxide, shellcheck, chezmoi
 
@@ -85,6 +88,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$SCRIPT_DIR/lib/install-container.sh"
 # shellcheck source=lib/install-cloud.sh
 . "$SCRIPT_DIR/lib/install-cloud.sh"
+# shellcheck source=lib/install-multiplexer.sh
+. "$SCRIPT_DIR/lib/install-multiplexer.sh"
 # shellcheck source=lib/install-ai-agents.sh
 . "$SCRIPT_DIR/lib/install-ai-agents.sh"
 # shellcheck source=lib/install-ai-power.sh
@@ -157,6 +162,7 @@ echo "  📦 Node.js環境 - mise, Node.js LTS, pnpm"
 echo "  🐍 Python環境 - mise, Python, uv"
 echo "  🐳 コンテナ / サンドボックスツール - Docker Engine, Docker Compose, bubblewrap"
 echo "  ☁️ クラウドツール - AWS CLI (default) / Azure CLI, Google Cloud CLI (opt-in)"
+echo "  🪟 Terminal multiplexer - zellij (opt-in)"
 echo "  🤖 AIエージェント CLI - Claude Code, Codex CLI, GitHub Copilot CLI, Gemini CLI"
 echo "  🧠 AIパワーツール - markitdown, tesseract-ocr, ffmpeg, ast-grep, yq"
 echo "  🛠️ 開発補助ツール - just, zoxide, shellcheck, chezmoi"
@@ -219,6 +225,12 @@ if [[ ! $INSTALL_ALL =~ ^[Yy]?$ ]]; then
   _prompt_default_no "  Google Cloud CLI をインストールしますか? [y/N]: "
   echo ""
   [[ $REPLY =~ ^[Yy]$ ]] && INSTALL_GCLOUD_CLI=1
+
+  echo ""
+  echo "🪟 Terminal multiplexer:"
+  _prompt_default_no "  zellij をインストールしますか? [y/N]: "
+  echo ""
+  [[ $REPLY =~ ^[Yy]$ ]] && INSTALL_ZELLIJ=1
 
   echo ""
   echo "🤖 AIエージェント CLI:"
@@ -448,8 +460,9 @@ echo "✅ 依存パッケージインストール完了"
 # ========================================
 # 注意: 依存関係の順序で実行されます
 # 1. ビルド → 2. 基本CLI → 3. Git (git, gh) → 4. mise + 言語環境
-# → 5. Git セキュリティ (gitleaks) → 6. コンテナ / サンドボックス → 7. クラウド → 8. AIエージェント
-# → 9. AI パワーツール → 10. 開発補助
+# → 5. Git セキュリティ (gitleaks) → 6. コンテナ / サンドボックス → 7. クラウド
+# → 8. Terminal multiplexer (opt-in) → 9. AIエージェント
+# → 10. AI パワーツール → 11. 開発補助
 
 install_build_tools
 install_basic_cli_tools
@@ -461,6 +474,7 @@ mise_trust_repo_config "$(dirname "$SCRIPT_DIR")"
 install_git_security_tools
 install_container_tools
 install_cloud_tools
+install_multiplexer_tools
 install_ai_tools
 install_ai_power_tools
 install_dev_tools
@@ -602,6 +616,9 @@ echo "  ☁️ クラウドツール:"
 echo "    AWS CLI:        $(aws --version 2>/dev/null || echo '未インストール')"
 echo "    Azure CLI:      $(az --version 2>/dev/null | head -n1 || echo '未インストール')"
 echo "    Google Cloud:   $(gcloud --version 2>/dev/null | head -n1 || echo '未インストール')"
+echo ""
+echo "  🪟 Terminal multiplexer:"
+echo "    Zellij:         $(zellij --version 2>/dev/null || echo '未インストール (opt-in)')"
 echo ""
 echo "  🤖 AIエージェント CLI:"
 echo "    Claude Code:        $(claude --version 2>/dev/null || echo '未インストール')"

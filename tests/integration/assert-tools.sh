@@ -62,6 +62,12 @@ if [ "${INSTALL_CONTAINER:-1}" = "1" ]; then
   echo ""
 fi
 
+if [ "${INSTALL_ZELLIJ:-0}" = "1" ]; then
+  echo "🪟 Terminal multiplexer"
+  assert_tool "zellij" zellij --version
+  echo ""
+fi
+
 echo "📌 Basic CLI"
 assert_tool "tree" tree --version
 assert_tool "fzf" fzf --version

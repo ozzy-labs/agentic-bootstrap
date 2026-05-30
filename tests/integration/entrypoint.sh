@@ -9,6 +9,7 @@ set -eo pipefail
 
 RUN1_LOG="/tmp/run1.log"
 RUN2_LOG="/tmp/run2.log"
+RUN3_LOG="/tmp/run3.log"
 ASSERT_SCRIPT="/workspace/tests/integration/assert-tools.sh"
 
 printf '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
@@ -138,6 +139,26 @@ if grep -qE "unbound variable" "$PIPE_ZSH_LOG"; then
   exit 1
 fi
 echo "✅ setup-zsh-linux.sh completes under pipe execution"
+
+printf '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+printf '🔵 3rd run — opt-in multiplexer (INSTALL_ZELLIJ=1)\n'
+printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+
+# multiplexer は opt-in なので、既定の 1st / 2nd run では入らない。
+# 3rd run で INSTALL_ZELLIJ=1 を明示して zellij がインストールされ、
+# assert-tools.sh が opt-in アサーションを満たすことを確認する。
+if ! INSTALL_ZELLIJ=1 /workspace/install.sh local 2>&1 | tee "$RUN3_LOG"; then
+  echo "❌ 3rd run (INSTALL_ZELLIJ=1) failed"
+  exit 1
+fi
+assert_no_fatal_errors "$RUN3_LOG" "3rd run"
+
+# shellcheck disable=SC1091
+source "$HOME/.bashrc" || true
+if ! INSTALL_ZELLIJ=1 bash "$ASSERT_SCRIPT"; then
+  echo "❌ Tool assertions failed after 3rd run (INSTALL_ZELLIJ=1)"
+  exit 1
+fi
 
 # NOTE: setup-local-linux.sh の直接 pipe 実行テストは、scripts/lib/*.sh への
 # 責務分割（#88）以降は実装と整合しないため削除した。実環境では
