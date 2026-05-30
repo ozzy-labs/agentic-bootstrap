@@ -21,6 +21,11 @@ python = "latest"
 # 移行 (0.11.0+) に追従していないため、github バックエンドに切替えて回避する。
 # https://github.com/aquaproj/aqua-registry/blob/main/pkgs/astral-sh/uv/registry.yaml
 "github:astral-sh/uv" = "0.11.9"
+# trivy も aqua レジストリの signer_workflow が aquasecurity/trivy の Immutable
+# Release 移行に追従していないため、github バックエンドに切替えて回避する。
+# lefthook の pre-commit フックが `mise exec -- trivy ...` を呼ぶため、
+# chezmoi apply 後も global config に残るよう必ずここで明示する。
+"github:aquasecurity/trivy" = "0.70.0"
 gitleaks = "8.30.1"
 ast-grep = "0.42.1"
 yq = "4.53.2"
