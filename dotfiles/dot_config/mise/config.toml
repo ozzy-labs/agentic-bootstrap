@@ -33,3 +33,8 @@ chezmoi = "2.70.2"
 just = "1.50.0"
 zoxide = "0.9.9"
 shellcheck = "0.11.0"
+# zellij は opt-in multiplexer (scripts/lib/install-multiplexer.sh が
+# INSTALL_ZELLIJ=1 のときに mise use --global で導入) だが、chezmoi apply 後も
+# global config に残るよう必ずここで明示する (#149 で導入、#155 で修正)。
+# aqua バックエンドで動作確認済み。
+zellij = "0.44.3"
