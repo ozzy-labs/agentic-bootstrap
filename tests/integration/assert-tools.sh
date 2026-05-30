@@ -62,9 +62,14 @@ if [ "${INSTALL_CONTAINER:-1}" = "1" ]; then
   echo ""
 fi
 
-if [ "${INSTALL_ZELLIJ:-0}" = "1" ]; then
+if [ "${INSTALL_TMUX:-0}" = "1" ] || [ "${INSTALL_ZELLIJ:-0}" = "1" ]; then
   echo "🪟 Terminal multiplexer"
-  assert_tool "zellij" zellij --version
+  if [ "${INSTALL_TMUX:-0}" = "1" ]; then
+    assert_tool "tmux" tmux -V
+  fi
+  if [ "${INSTALL_ZELLIJ:-0}" = "1" ]; then
+    assert_tool "zellij" zellij --version
+  fi
   echo ""
 fi
 

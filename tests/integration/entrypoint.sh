@@ -141,24 +141,38 @@ fi
 echo "✅ setup-zsh-linux.sh completes under pipe execution"
 
 printf '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
-printf '🔵 3rd run — opt-in multiplexer (INSTALL_ZELLIJ=1)\n'
+printf '🔵 3rd run — opt-in multiplexer (INSTALL_TMUX=1 INSTALL_ZELLIJ=1)\n'
 printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
 
 # multiplexer は opt-in なので、既定の 1st / 2nd run では入らない。
-# 3rd run で INSTALL_ZELLIJ=1 を明示して zellij がインストールされ、
+# 3rd run で INSTALL_TMUX=1 / INSTALL_ZELLIJ=1 を明示して両方がインストールされ、
 # assert-tools.sh が opt-in アサーションを満たすことを確認する。
-if ! INSTALL_ZELLIJ=1 /workspace/install.sh local 2>&1 | tee "$RUN3_LOG"; then
-  echo "❌ 3rd run (INSTALL_ZELLIJ=1) failed"
+# tmux 側は ~/.tmux.conf の新規作成（既存ファイル無し時）も検証する。
+if ! INSTALL_TMUX=1 INSTALL_ZELLIJ=1 /workspace/install.sh local 2>&1 | tee "$RUN3_LOG"; then
+  echo "❌ 3rd run (INSTALL_TMUX=1 INSTALL_ZELLIJ=1) failed"
   exit 1
 fi
 assert_no_fatal_errors "$RUN3_LOG" "3rd run"
 
 # shellcheck disable=SC1091
 source "$HOME/.bashrc" || true
-if ! INSTALL_ZELLIJ=1 bash "$ASSERT_SCRIPT"; then
-  echo "❌ Tool assertions failed after 3rd run (INSTALL_ZELLIJ=1)"
+if ! INSTALL_TMUX=1 INSTALL_ZELLIJ=1 bash "$ASSERT_SCRIPT"; then
+  echo "❌ Tool assertions failed after 3rd run (INSTALL_TMUX=1 INSTALL_ZELLIJ=1)"
   exit 1
 fi
+
+# ~/.tmux.conf が新規ホストで作成されることを確認
+# 同梱の最小構成（default-terminal "tmux-256color"）が書かれているはず。
+if [ ! -f "$HOME/.tmux.conf" ]; then
+  echo "❌ ~/.tmux.conf が作成されていません（INSTALL_TMUX=1 で新規作成されるはず）"
+  exit 1
+fi
+if ! grep -q 'tmux-256color' "$HOME/.tmux.conf"; then
+  echo "❌ ~/.tmux.conf に同梱の最小構成が書かれていません"
+  cat "$HOME/.tmux.conf"
+  exit 1
+fi
+echo "✅ ~/.tmux.conf created with bundled defaults"
 
 # NOTE: setup-local-linux.sh の直接 pipe 実行テストは、scripts/lib/*.sh への
 # 責務分割（#88）以降は実装と整合しないため削除した。実環境では

@@ -27,6 +27,7 @@ INSTALL_MISE_LANGUAGES="${INSTALL_MISE_LANGUAGES:-1}" # node + pnpm + python + u
 INSTALL_GIT_TOOLS="${INSTALL_GIT_TOOLS:-1}"           # gitleaks（mise 経由）
 INSTALL_AI_POWER_TOOLS="${INSTALL_AI_POWER_TOOLS:-1}" # ast-grep, yq, markitdown
 INSTALL_DEV_TOOLS="${INSTALL_DEV_TOOLS:-1}"           # just, zoxide, shellcheck, chezmoi
+INSTALL_TMUX="${INSTALL_TMUX:-0}"                     # tmux（macOS では自動化対象外、READMEの手動案内のみ）
 INSTALL_ZELLIJ="${INSTALL_ZELLIJ:-0}"                 # Zellij（opt-in、mise 経由）
 
 # スクリプトのディレクトリ
@@ -227,7 +228,15 @@ install_ai_power_tools() {
 
 # Terminal multiplexer（opt-in、mise 経由）
 # zellij は aqua バックエンドで導入。tmux は macOS では自動化対象外（README §6.3.2 参照）。
+# `INSTALL_TMUX=1` が指定された場合は notice のみ表示してスキップする（mise-first 方針を維持）。
 install_multiplexer_tools() {
+  # tmux は macOS では自動化しない（brew install tmux を README で案内）
+  if [ "${INSTALL_TMUX:-0}" = "1" ]; then
+    echo ""
+    echo "ℹ️  macOS では tmux は手動インストール対象です (brew install tmux)"
+    echo "    詳細は README §6.3.2 を参照してください"
+  fi
+
   [ "${INSTALL_ZELLIJ:-0}" != "1" ] && return
 
   ensure_mise_installed || return 1
@@ -356,6 +365,7 @@ echo "  shellcheck:     $(_mise_at_home exec shellcheck -- shellcheck --version 
 echo "  chezmoi:        $(_mise_at_home exec chezmoi -- chezmoi --version 2>/dev/null || echo '未インストール')"
 echo ""
 echo "🪟 Terminal multiplexer:"
+echo "  tmux:           $(tmux -V 2>/dev/null || echo '未インストール (brew install tmux で手動導入)')"
 echo "  Zellij:         $(_mise_at_home exec zellij -- zellij --version 2>/dev/null || echo '未インストール (opt-in)')"
 
 echo ""
