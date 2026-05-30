@@ -16,6 +16,7 @@ pinned:
   - .devcontainer/Dockerfile
   - .devcontainer/devcontainer.json
   - .devcontainer/initialize.sh
+  - .gemini/settings.json
   - .github/workflows/pr-check.yaml
   - .github/workflows/sync-commons.yaml
   - .gitignore
