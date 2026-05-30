@@ -5,15 +5,35 @@
 # ローカルで Docker 統合テストを走らせるハーネス。
 #
 # Usage:
-#   ./tests/integration/run.sh                 # デフォルト (24.04)
+#   ./tests/integration/run.sh                 # デフォルト (24.04, fresh)
 #   ./tests/integration/run.sh 22.04           # 単一バージョン
 #   ./tests/integration/run.sh 22.04 24.04     # 複数バージョン逐次
 #   ./tests/integration/run.sh devel           # Canary（次期 Linux リリース）
+#
+# Environment variables:
+#   SCENARIO=fresh|upgrade   # 既定 fresh。upgrade は直近リリース tag で
+#                            # bootstrap 後に HEAD コードで再 install し、
+#                            # 過去版 state のマイグレーション経路を検証
+#                            # （Dockerfile.upgrade を使う）
 # =======================================================================
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+SCENARIO="${SCENARIO:-fresh}"
+case "$SCENARIO" in
+fresh)
+  DOCKERFILE="$SCRIPT_DIR/Dockerfile"
+  ;;
+upgrade)
+  DOCKERFILE="$SCRIPT_DIR/Dockerfile.upgrade"
+  ;;
+*)
+  echo "❌ Unknown SCENARIO='$SCENARIO' (expected: fresh|upgrade)"
+  exit 1
+  ;;
+esac
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "⚠️  docker コマンドが見つかりません"
@@ -46,28 +66,28 @@ FAILED_VERSIONS=()
 
 for version in "${VERSIONS[@]}"; do
   printf '\n═══════════════════════════════════════════\n'
-  printf '🐳 Testing against ubuntu:%s\n' "$version"
+  printf '🐳 Testing against ubuntu:%s (scenario: %s)\n' "$version" "$SCENARIO"
   printf '═══════════════════════════════════════════\n'
 
-  tag="agentic-bootstrap-test:${version//[^A-Za-z0-9._-]/-}"
+  tag="agentic-bootstrap-test:${version//[^A-Za-z0-9._-]/-}-${SCENARIO}"
 
   if ! docker build \
     --build-arg "UBUNTU_VERSION=${version}" \
     -t "$tag" \
-    -f "$SCRIPT_DIR/Dockerfile" \
+    -f "$DOCKERFILE" \
     "$REPO_ROOT"; then
-    echo "❌ docker build failed for ubuntu:${version}"
+    echo "❌ docker build failed for ubuntu:${version} (scenario: ${SCENARIO})"
     FAILED_VERSIONS+=("$version")
     continue
   fi
 
   if ! docker run --rm "${DOCKER_ENV_ARGS[@]}" "$tag"; then
-    echo "❌ docker run failed for ubuntu:${version}"
+    echo "❌ docker run failed for ubuntu:${version} (scenario: ${SCENARIO})"
     FAILED_VERSIONS+=("$version")
     continue
   fi
 
-  printf '\n✅ ubuntu:%s passed\n' "$version"
+  printf '\n✅ ubuntu:%s passed (scenario: %s)\n' "$version" "$SCENARIO"
 done
 
 printf '\n═══════════════════════════════════════════\n'
