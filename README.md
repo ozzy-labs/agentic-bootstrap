@@ -63,7 +63,7 @@ agentic-bootstrap/
 - 🐍 **Python Ecosystem** - mise-managed Python + uv for packages/venvs/CLI tools
 - ☁️ **Cloud CLIs** - AWS CLI v2 (default) / Azure CLI, Google Cloud CLI (opt-in)
 - 🔒 **Modern Secret Scanning** - gitleaks (2026 de-facto, actively maintained); pair with lefthook per project
-- 🎨 **Shell Experience** - zsh + oh-my-zsh + plugins (Linux), fzf / ripgrep / fd / jq / tree (opt-in: zellij multiplexer)
+- 🎨 **Shell Experience** - zsh + oh-my-zsh + plugins (Linux), fzf / ripgrep / fd / jq / tree (opt-in: tmux / zellij multiplexer)
 - 🔄 **One-shot Upgrades** - `install.sh update` batch-refreshes mise/uv/npm-managed tools
 - 🐧 **Linux (Ubuntu/Debian-based) LTS Coverage** - CI-verified on 22.04 + 24.04; canary-tested on **26.04 Resolute Raccoon** (next LTS) so the toolchain continues to work the day 26.04 lands on WSL2
 - 🍎 **macOS Coverage** - Native `setup-local-macos.sh` keeps the same mise-first flow; canary-verified weekly on `macos-latest`
@@ -304,6 +304,7 @@ You can run it either through `install.sh` or directly via `scripts/setup-local-
    - **Azure CLI** - Microsoft Azure resource operations (opt-in)
    - **Google Cloud CLI** - Google Cloud Platform resource operations (opt-in)
 9. **Terminal Multiplexer** (opt-in)
+   - **tmux** (via apt) - Classic terminal multiplexer (Linux only, opt-in; set `INSTALL_TMUX=1` or select interactively). A sensible `~/.tmux.conf` (truecolor, mouse, 50k scrollback, 1-based indexing, `prefix r` reload bind) is shipped only when no existing config is present
    - **Zellij** (via mise) - Modern terminal multiplexer (opt-in; set `INSTALL_ZELLIJ=1` or select interactively)
 10. **AI Agent CLIs** (choose individually)
     - **Claude Code** - Interactive development tool with Claude AI
@@ -546,6 +547,7 @@ macOS counterpart to `setup-local-linux.sh`, intentionally lighter-weight: focus
 - **Docker Desktop** — license + interactive installer required; install from <https://www.docker.com/products/docker-desktop>
 - **AI agent CLIs** (Claude Code / Codex / Copilot / Gemini) — interactive authentication; install per the vendor docs
 - **Cloud CLIs** (`aws`, `az`, `gcloud`) — `brew install awscli azure-cli google-cloud-sdk` recommended
+- **tmux** — manual install via `brew install tmux` if desired (mise-first policy on macOS; setting `INSTALL_TMUX=1` only prints a notice and does not invoke brew)
 
 **6.3.3 Usage**
 
@@ -750,6 +752,28 @@ sudo apt-get install -y docker-compose-plugin
 # Solution
 Enter valid format: user@example.com
 Or configure later: git config --global user.email "you@example.com"
+```
+
+**7.1.6 Existing `~/.tmux.conf` is not overwritten**
+
+```bash
+# Behavior
+When INSTALL_TMUX=1 is set, the install script writes a sensible
+~/.tmux.conf ONLY if the file does not already exist. If you already
+have ~/.tmux.conf, the script skips it with:
+
+  ⏭️  ~/.tmux.conf は既に存在（上書きしません）
+
+# If you want the shipped defaults
+mv ~/.tmux.conf ~/.tmux.conf.bak
+INSTALL_TMUX=1 ./install.sh local
+
+# What ships in the bundled config
+- truecolor + 256color (tmux-256color terminfo)
+- mouse on, 50k scrollback
+- 1-based window / pane indexing with renumber-windows
+- `prefix r` to reload ~/.tmux.conf
+- Default prefix (C-b) kept; no vi/emacs mode-keys; no plugin manager
 ```
 
 ### 7.2 Checking Logs

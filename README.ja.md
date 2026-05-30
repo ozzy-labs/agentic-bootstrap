@@ -63,7 +63,7 @@ agentic-bootstrap/
 - 🐍 **Python エコシステム** - mise 管理の Python + uv（パッケージ・venv・CLI ツール）
 - ☁️ **クラウド CLI** - AWS CLI v2（デフォルト ON）/ Azure CLI, Google Cloud CLI（opt-in）
 - 🔒 **モダンなシークレット検知** - gitleaks（2026 デファクト、アクティブメンテ）を mise で導入、プロジェクト側の lefthook と連携
-- 🎨 **シェル体験** - zsh + oh-my-zsh + プラグイン（Ubuntu/Debian）、fzf / ripgrep / fd / jq / tree（opt-in: zellij multiplexer）
+- 🎨 **シェル体験** - zsh + oh-my-zsh + プラグイン（Ubuntu/Debian）、fzf / ripgrep / fd / jq / tree（opt-in: tmux / zellij multiplexer）
 - 🔄 **ワンショット更新** - `install.sh update` で mise / uv / npm 管理ツールを一括更新
 - 🐧 **Ubuntu LTS 幅広くサポート** - 22.04 / 24.04 を PR / main push で CI 検証、**次期 LTS 26.04 Resolute Raccoon** も週次 canary で先行検証済み。LTS 切替直後も動作する
 - 🍎 **macOS サポート** - 専用 `setup-local-macos.sh` で同じ mise を入口にしたフローを提供。週次 canary で `macos-latest` を検証
@@ -304,6 +304,7 @@ Ubuntu/Debian 環境（WSL2 + 非 WSL Linux：Ubuntu Server / EC2 / GCE / コン
    - **Azure CLI** - Microsoft Azure リソース操作（opt-in）
    - **Google Cloud CLI** - Google Cloud Platform リソース操作（opt-in）
 9. **Terminal multiplexer**（opt-in）
+   - **tmux**（apt 経由）- 定番のターミナルマルチプレクサ（Linux 限定。`INSTALL_TMUX=1` または対話セレクタで選択）。`~/.tmux.conf` が存在しない場合のみ最小構成（truecolor / mouse / 50k scrollback / 1 始まり index / `prefix r` でリロード）を直書きする
    - **Zellij**（mise 経由）- モダンなターミナルマルチプレクサ（opt-in。`INSTALL_ZELLIJ=1` または対話セレクタで選択）
 10. **AI エージェント CLI**（個別選択可）
     - **Claude Code** - Claude AI との対話型開発ツール
@@ -546,6 +547,7 @@ SETUP_LOG=/tmp/setup.log ./install.sh local
 - **Docker Desktop** — ライセンス + 対話インストーラが必要。<https://www.docker.com/products/docker-desktop> から導入
 - **AI エージェント CLI**（Claude Code / Codex / Copilot / Gemini）— 対話認証が必要なため各 vendor doc を参照
 - **クラウド CLI**（`aws` / `az` / `gcloud`）— `brew install awscli azure-cli google-cloud-sdk` を推奨
+- **tmux** — 必要であれば `brew install tmux` で手動導入（macOS は mise-first 方針のため、`INSTALL_TMUX=1` を指定しても notice のみ表示し brew は呼ばない）
 
 **6.3.3 使用方法**
 
@@ -751,6 +753,27 @@ sudo apt-get install -y docker-compose-plugin
 # 対処法
 有効な形式で入力: user@example.com
 または後で設定: git config --global user.email "you@example.com"
+```
+
+**7.1.6 既存の `~/.tmux.conf` が上書きされない**
+
+```bash
+# 挙動
+INSTALL_TMUX=1 を指定すると、~/.tmux.conf が「存在しない場合のみ」
+最小構成を直書きする。既に存在する場合はスキップし、以下を表示する:
+
+  ⏭️  ~/.tmux.conf は既に存在（上書きしません）
+
+# 同梱の設定を適用したい場合
+mv ~/.tmux.conf ~/.tmux.conf.bak
+INSTALL_TMUX=1 ./install.sh local
+
+# 同梱の設定内容
+- truecolor + 256color（tmux-256color terminfo）
+- mouse on、50k スクロールバック
+- window / pane index を 1 始まり、renumber-windows on
+- `prefix r` で ~/.tmux.conf をリロード
+- prefix キーはデフォルト（C-b）維持、vi/emacs mode-keys / プラグインマネージャは入れない
 ```
 
 ### 7.2 ログの確認方法
