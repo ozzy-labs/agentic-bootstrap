@@ -15,6 +15,12 @@ _is_ubuntu_or_debian() {
   [ -f /etc/os-release ] && grep -qi "ubuntu\|debian" /etc/os-release 2>/dev/null
 }
 
+# macOS（Darwin カーネル）かを判定
+# 共有 lib のフロー分岐（OS 固有の rc ファイル等）に利用する。
+_is_darwin() {
+  [ "$(uname -s)" = "Darwin" ]
+}
+
 # /etc/os-release から PRETTY_NAME を取得
 _os_pretty_name() {
   if [ -f /etc/os-release ]; then
