@@ -27,6 +27,7 @@ INSTALL_MISE_LANGUAGES="${INSTALL_MISE_LANGUAGES:-1}" # node + pnpm + python + u
 INSTALL_GIT_TOOLS="${INSTALL_GIT_TOOLS:-1}"           # gitleaks（mise 経由）
 INSTALL_AI_POWER_TOOLS="${INSTALL_AI_POWER_TOOLS:-1}" # ast-grep, yq, markitdown
 INSTALL_DEV_TOOLS="${INSTALL_DEV_TOOLS:-1}"           # just, zoxide, shellcheck, chezmoi
+INSTALL_ZELLIJ="${INSTALL_ZELLIJ:-0}"                 # Zellij（opt-in、mise 経由）
 
 # スクリプトのディレクトリ
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -224,6 +225,18 @@ install_ai_power_tools() {
   fi
 }
 
+# Terminal multiplexer（opt-in、mise 経由）
+# zellij は aqua バックエンドで導入。tmux は macOS では自動化対象外（README §6.3.2 参照）。
+install_multiplexer_tools() {
+  [ "${INSTALL_ZELLIJ:-0}" != "1" ] && return
+
+  ensure_mise_installed || return 1
+
+  echo ""
+  echo "🪟 Terminal multiplexer をインストール中..."
+  mise_use_global "zellij@0.44.3" "Zellij"
+}
+
 # 開発補助ツール: just / zoxide / shellcheck / chezmoi（mise）
 install_dev_tools() {
   [ "$INSTALL_DEV_TOOLS" != "1" ] && return
@@ -308,6 +321,7 @@ install_mise_and_languages
 mise_trust_repo_config "$(dirname "$SCRIPT_DIR")"
 install_git_security_tools
 install_ai_power_tools
+install_multiplexer_tools
 install_dev_tools
 
 # ========================================
@@ -340,6 +354,9 @@ echo "  just:           $(_mise_at_home exec just -- just --version 2>/dev/null 
 echo "  zoxide:         $(_mise_at_home exec zoxide -- zoxide --version 2>/dev/null || echo '未インストール')"
 echo "  shellcheck:     $(_mise_at_home exec shellcheck -- shellcheck --version 2>/dev/null | awk '/^version:/{print $2}' || echo '未インストール')"
 echo "  chezmoi:        $(_mise_at_home exec chezmoi -- chezmoi --version 2>/dev/null || echo '未インストール')"
+echo ""
+echo "🪟 Terminal multiplexer:"
+echo "  Zellij:         $(_mise_at_home exec zellij -- zellij --version 2>/dev/null || echo '未インストール (opt-in)')"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
