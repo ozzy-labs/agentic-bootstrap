@@ -16,6 +16,9 @@
 - `/review` — コード変更や PR をレビュー
 - `/ship` — lint・コミット・PR 作成を一括実行
 - `/drive` — implement + ship + review loop（Issue から merge-ready な PR まで自律駆動）
+- `/health` — リポジトリ状態（working tree, stash, branch, worktree, PR, issue, actions 等）の 16 領域ステータス点検
+- `/phase-issue` — Phase-N tracking issue を構造化された body で起票
+- `/topics` — GitHub topics 候補を選定・検証して適用
 
 ## Skills の共通ルール
 
