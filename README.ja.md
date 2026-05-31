@@ -44,7 +44,7 @@
 
 ```
 agentyard/
-├── install.sh                      # OS 自動判定で dispatch（Linux → ubuntu, Darwin → macos）
+├── install.sh                      # OS 自動判定で dispatch（Linux → linux, Darwin → macos）
 ├── README.md
 ├── README.ja.md
 └── scripts/
@@ -889,10 +889,10 @@ curl --proto '=https' --tlsv1.2 -fsSL \
 SETUP_LOG=1 ./install.sh local
 
 # ログファイルの場所が表示されます
-ℹ️  ログを /home/user/setup-local-ubuntu-20250109-123456.log に記録します
+ℹ️  ログを /home/user/setup-local-linux-20250109-123456.log に記録します
 
 # ログを確認
-cat /home/user/setup-local-ubuntu-20250109-123456.log
+cat /home/user/setup-local-linux-20250109-123456.log
 ```
 
 ---

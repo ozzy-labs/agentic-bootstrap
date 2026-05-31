@@ -185,6 +185,38 @@ else
 fi
 
 # ------------------------------------------------------------------
+# 5. rename identifier pins
+# ------------------------------------------------------------------
+#
+# 旧名 agentic-bootstrap → 新名 agentyard のリネーム後、誤って旧名に
+# 戻る regression や typo を merge 前に検知するための固定。CI 上で
+# lefthook は直接実行されないため、hook id rename はここでないと検知不能。
+
+assert_stdout_contains "install.sh --help advertises AGENTYARD_REF" \
+  "AGENTYARD_REF" \
+  bash install.sh --help
+
+assert_stdout_contains "install.sh --help advertises AGENTYARD_ASSUME_YES" \
+  "AGENTYARD_ASSUME_YES" \
+  bash install.sh --help
+
+assert_stdout_contains "install.sh --help points to ozzy-labs/agentyard" \
+  "ozzy-labs/agentyard" \
+  bash install.sh --help
+
+assert_success "install.sh REPO_NAME is agentyard" \
+  grep -q '^readonly REPO_NAME="agentyard"$' install.sh
+
+assert_success "lefthook.yaml defines agentyard-shell hook" \
+  grep -q '^[[:space:]]*agentyard-shell:' lefthook.yaml
+
+assert_success "lefthook.yaml defines agentyard-trivy hook" \
+  grep -q '^[[:space:]]*agentyard-trivy:' lefthook.yaml
+
+assert_success "release-please-config.json declares package-name agentyard" \
+  grep -q '"package-name": "agentyard"' release-please-config.json
+
+# ------------------------------------------------------------------
 # サマリー
 # ------------------------------------------------------------------
 

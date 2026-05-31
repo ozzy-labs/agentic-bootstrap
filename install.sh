@@ -38,6 +38,10 @@ Options:
 Environment:
   AGENTYARD_REF          Default git ref to download when running remotely
                          (legacy: AGENTIC_BOOTSTRAP_REF, BOOTSTRAP_REF are honored as fallbacks)
+  AGENTYARD_ASSUME_YES   1 = non-interactive, auto-accept "default Y" prompts and
+                         skip "default N" prompts. CI=true also forces this on.
+                         (legacy: AGENTIC_BOOTSTRAP_ASSUME_YES, BOOTSTRAP_ASSUME_YES
+                         are honored as fallbacks; set via -y/--auto/--interactive too)
   SETUP_LOG              Passed through to the underlying setup/update script(s)
 EOF
 }

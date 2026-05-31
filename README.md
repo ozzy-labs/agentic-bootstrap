@@ -889,10 +889,10 @@ curl --proto '=https' --tlsv1.2 -fsSL \
 SETUP_LOG=1 ./install.sh local
 
 # Log file path will be shown, e.g.:
-ℹ️  Logs stored at /home/user/setup-local-ubuntu-20250109-123456.log
+ℹ️  Logs stored at /home/user/setup-local-linux-20250109-123456.log
 
 # View log
-cat /home/user/setup-local-ubuntu-20250109-123456.log
+cat /home/user/setup-local-linux-20250109-123456.log
 ```
 
 ---
