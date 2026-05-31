@@ -146,6 +146,37 @@ assert_success "update-tools.sh syntax check" \
 assert_success "doctor.sh syntax check" \
   bash -n scripts/doctor.sh
 
+# scripts/lib/*.sh の構文チェック（audit gap δ-2）。
+# トップレベル 6 スクリプトしか syntax check していなかったため、lib 配下に
+# bash -n エラーが混入すると smoke を通過し integration まで検知が遅れていた。
+# ここで全 lib を網羅的にチェックする。
+for lib in scripts/lib/*.sh; do
+  assert_success "syntax check: $lib" bash -n "$lib"
+done
+
+# ------------------------------------------------------------------
+# 4. doctor.sh exit code 範囲チェック（audit gap δ-3）
+# ------------------------------------------------------------------
+#
+# doctor は 0 / 1 / 2 を返す仕様（README §6.5.2）。smoke では doctor の
+# 発火と exit code が想定範囲内かのみ確認する（深い内容検証は別レイヤ）。
+# fresh subagent worktree は warn が出やすいため 0 / 1 を許容する。
+# 2 (error)・3 以上は即 fail。
+#
+# NOTE: 本スクリプトは `set -u` のみで `set -e` を使わない。`set +e/-e` 切替は
+# 副作用（後続コード全体に errexit を残す）が出るため、`|| true` で exit code を
+# 捕捉する pattern を使う。
+printf '▶ doctor.sh exit code in {0,1}\n'
+doctor_exit=0
+bash scripts/doctor.sh >/dev/null 2>&1 || doctor_exit=$?
+if [ "$doctor_exit" -eq 0 ] || [ "$doctor_exit" -eq 1 ]; then
+  printf '  ✅ pass (exit=%d)\n' "$doctor_exit"
+  PASS=$((PASS + 1))
+else
+  printf '  ❌ fail (exit=%d, expected 0/1)\n' "$doctor_exit"
+  FAIL=$((FAIL + 1))
+fi
+
 # ------------------------------------------------------------------
 # サマリー
 # ------------------------------------------------------------------
