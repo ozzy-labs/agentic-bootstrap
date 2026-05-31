@@ -40,6 +40,10 @@ echo "🔒 Git / security"
 assert_tool "git" git --version
 assert_tool "gh" gh --version
 assert_tool "gitleaks" gitleaks version
+# trivy は dotfiles テンプレート (dot_config/mise/config.toml) で global pin される。
+# 過去に chezmoi apply が trivy を消す回帰 (#153/#156) があったため、
+# 統合テストで positive assertion を入れて再発を検知する。
+assert_tool "trivy" trivy --version
 
 echo ""
 echo "🧠 AI power tools"
