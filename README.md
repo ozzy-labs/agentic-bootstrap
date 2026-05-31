@@ -1,13 +1,13 @@
-# agentic-bootstrap
+# agentyard
 
 **One-shot host setup for AI-agent-driven development — WSL2 / Linux (Ubuntu/Debian-based) / macOS, Dev Container or direct host use**
 
-[![Lint](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/lint.yaml/badge.svg)](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/lint.yaml)
-[![Unit](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/test-unit.yaml/badge.svg)](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/test-unit.yaml)
-[![Smoke](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/test-smoke.yaml/badge.svg)](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/test-smoke.yaml)
-[![Integration](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/test-integration.yaml/badge.svg)](https://github.com/ozzy-labs/agentic-bootstrap/actions/workflows/test-integration.yaml)
-[![License: MIT](https://img.shields.io/github/license/ozzy-labs/agentic-bootstrap)](LICENSE)
-[![Latest Release](https://img.shields.io/github/v/release/ozzy-labs/agentic-bootstrap?include_prereleases&label=release)](https://github.com/ozzy-labs/agentic-bootstrap/releases/latest)
+[![Lint](https://github.com/ozzy-labs/agentyard/actions/workflows/lint.yaml/badge.svg)](https://github.com/ozzy-labs/agentyard/actions/workflows/lint.yaml)
+[![Unit](https://github.com/ozzy-labs/agentyard/actions/workflows/test-unit.yaml/badge.svg)](https://github.com/ozzy-labs/agentyard/actions/workflows/test-unit.yaml)
+[![Smoke](https://github.com/ozzy-labs/agentyard/actions/workflows/test-smoke.yaml/badge.svg)](https://github.com/ozzy-labs/agentyard/actions/workflows/test-smoke.yaml)
+[![Integration](https://github.com/ozzy-labs/agentyard/actions/workflows/test-integration.yaml/badge.svg)](https://github.com/ozzy-labs/agentyard/actions/workflows/test-integration.yaml)
+[![License: MIT](https://img.shields.io/github/license/ozzy-labs/agentyard)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/ozzy-labs/agentyard?include_prereleases&label=release)](https://github.com/ozzy-labs/agentyard/releases/latest)
 
 **English | [日本語](README.ja.md)**
 
@@ -43,7 +43,7 @@ A comprehensive collection of shell scripts that bootstraps a development host (
 ## 2. Repository Structure
 
 ```
-agentic-bootstrap/
+agentyard/
 ├── install.sh                      # OS-aware dispatcher (Linux → linux, Darwin → macos)
 ├── README.md
 ├── README.ja.md
@@ -79,7 +79,7 @@ agentic-bootstrap/
 ```bash
 # 1. Set up zsh (recommended first)
 curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh | bash -s -- zsh
+  https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh | bash -s -- zsh
 
 # 2. Restart your terminal
 exit
@@ -87,7 +87,7 @@ exit
 
 # 3. Set up development tools (mise, languages, Docker, AI CLIs, AI power tools, ...)
 curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh | bash -s -- local
+  https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh | bash -s -- local
 
 # 4. Complete required authentications (for what you installed)
 aws configure      # or: aws configure sso
@@ -111,14 +111,14 @@ If you prefer to read the script before running it, download first and review:
 ```bash
 # Download to a temp file
 curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \
-  -o /tmp/agentic-bootstrap-install.sh
+  https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh \
+  -o /tmp/agentyard-install.sh
 
 # Review the contents
-less /tmp/agentic-bootstrap-install.sh
+less /tmp/agentyard-install.sh
 
 # Run it
-bash /tmp/agentic-bootstrap-install.sh local
+bash /tmp/agentyard-install.sh local
 ```
 
 ### 4.2 Verify a release with SHA256
@@ -128,7 +128,7 @@ For pinned, reproducible installs, use a tagged release. Each GitHub Release shi
 ```bash
 # Pin to a specific release (replace v0.3.0 with the latest tag)
 TAG=v0.3.0
-BASE="https://github.com/ozzy-labs/agentic-bootstrap/releases/download/${TAG}"
+BASE="https://github.com/ozzy-labs/agentyard/releases/download/${TAG}"
 
 # Download both the script and its checksum
 curl --proto '=https' --tlsv1.2 -fsSL "${BASE}/install.sh" -o install.sh
@@ -144,8 +144,8 @@ bash install.sh local
 ### 4.3 Clone-and-run (for contributors / forkers)
 
 ```bash
-git clone https://github.com/ozzy-labs/agentic-bootstrap.git
-cd agentic-bootstrap
+git clone https://github.com/ozzy-labs/agentyard.git
+cd agentyard
 ./install.sh zsh
 ./install.sh local
 ```
@@ -158,21 +158,21 @@ cd agentic-bootstrap
 |---|---|
 | `zsh` \| `local` \| `all` \| `update` \| `doctor` | Subcommand (default `all`). See [§6](#6-scripts) for what each runs. |
 | `--ref <git-ref>` | Branch / tag / commit to download when running remotely (default `main`) |
-| `-y`, `--auto` | Apply recommended defaults without prompts (sets `AGENTIC_BOOTSTRAP_ASSUME_YES=1`) |
-| `--interactive` | Force interactive prompts (sets `AGENTIC_BOOTSTRAP_ASSUME_YES=0`) — useful to override `CI=true` |
+| `-y`, `--auto` | Apply recommended defaults without prompts (sets `AGENTYARD_ASSUME_YES=1`) |
+| `--interactive` | Force interactive prompts (sets `AGENTYARD_ASSUME_YES=0`) — useful to override `CI=true` |
 | `-h`, `--help` | Show usage |
 
 #### Top-level environment variables
 
 | Variable | Default | Effect |
 |---|---|---|
-| `AGENTIC_BOOTSTRAP_REF` | `main` | Default git ref to download when running through `curl \| bash`. Legacy alias `BOOTSTRAP_REF` is still honored as a fallback. |
-| `AGENTIC_BOOTSTRAP_ASSUME_YES` | `0` | `1` = non-interactive, auto-accept "default Y" prompts and skip "default N" prompts. Legacy alias `BOOTSTRAP_ASSUME_YES` is honored. `CI=true` also forces this on. |
+| `AGENTYARD_REF` | `main` | Default git ref to download when running through `curl \| bash`. Legacy aliases `AGENTIC_BOOTSTRAP_REF`, `BOOTSTRAP_REF` are still honored as fallbacks. |
+| `AGENTYARD_ASSUME_YES` | `0` | `1` = non-interactive, auto-accept "default Y" prompts and skip "default N" prompts. Legacy aliases `AGENTIC_BOOTSTRAP_ASSUME_YES`, `BOOTSTRAP_ASSUME_YES` are honored. `CI=true` also forces this on. |
 | `SETUP_LOG` | unset | When set, tees all setup / update output into a log file. `1` or `true` uses the default path (`~/setup-local-<os>-YYYYMMDD-HHMMSS.log`); any other value is treated as a custom path. |
 
 #### `INSTALL_*` category flags (Linux: `setup-local-linux.sh`)
 
-Each flag accepts `1` (install) or `0` (skip). Defaults shown match `scripts/setup-local-linux.sh`. Interactive mode prompts for each category; `AGENTIC_BOOTSTRAP_ASSUME_YES=1` uses these defaults.
+Each flag accepts `1` (install) or `0` (skip). Defaults shown match `scripts/setup-local-linux.sh`. Interactive mode prompts for each category; `AGENTYARD_ASSUME_YES=1` uses these defaults.
 
 | Variable | Default | Category |
 |---|---|---|
@@ -210,7 +210,7 @@ macOS is intentionally lighter — Docker Desktop / AI agent CLIs / cloud CLIs a
 Example — non-interactive Linux install with Azure CLI added and AI agent CLIs skipped:
 
 ```bash
-AGENTIC_BOOTSTRAP_ASSUME_YES=1 \
+AGENTYARD_ASSUME_YES=1 \
 INSTALL_AZURE_CLI=1 \
 INSTALL_CLAUDE_CODE=0 INSTALL_CODEX_CLI=0 INSTALL_COPILOT_CLI=0 INSTALL_GEMINI_CLI=0 \
 SETUP_LOG=1 \
@@ -287,7 +287,7 @@ You can run it either through `install.sh` or directly via `scripts/setup-zsh-li
 
 ```bash
 # Via install.sh (recommended for first-time setup)
-curl -fsSL https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh | bash -s -- zsh
+curl -fsSL https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh | bash -s -- zsh
 
 # Basic execution from a cloned repository
 ./install.sh zsh
@@ -416,7 +416,7 @@ You can run it either through `install.sh` or directly via `scripts/setup-local-
 
 ```bash
 # Via install.sh (recommended for first-time setup)
-curl -fsSL https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh | bash -s -- local
+curl -fsSL https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh | bash -s -- local
 
 # Basic execution from a cloned repository
 ./install.sh local
@@ -630,7 +630,7 @@ macOS counterpart to `setup-local-linux.sh`, intentionally lighter-weight: focus
 ./scripts/setup-local-macos.sh
 
 # Non-interactive (CI / scripted)
-AGENTIC_BOOTSTRAP_ASSUME_YES=1 ./scripts/setup-local-macos.sh
+AGENTYARD_ASSUME_YES=1 ./scripts/setup-local-macos.sh
 ```
 
 **6.3.4 Notes**
@@ -717,7 +717,7 @@ Each non-`✅` finding is paired with a copy-paste-ready fix hint. The Doctor ne
 **6.5.4 Sample Output**
 
 ```
-🩺 agentic-bootstrap doctor を実行中...
+🩺 agentyard doctor を実行中...
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 診断結果
@@ -730,7 +730,7 @@ Each non-`✅` finding is paired with a copy-paste-ready fix hint. The Doctor ne
    ↳ 対処: eval "$(mise activate bash)"  # または zsh
 ✅ [mise-tools] node は mise 管理下 (current: 24.15.0)
 ⚠️  [chezmoi] ドットファイルに drift あり (12 行の差分)
-   ↳ 対処: chezmoi apply --source /path/to/agentic-bootstrap/dotfiles
+   ↳ 対処: chezmoi apply --source /path/to/agentyard/dotfiles
 
 サマリー: ✅ 11  ⚠️  2  ❌ 0
 ```
@@ -868,18 +868,18 @@ Pick one of the following workarounds:
 ```bash
 # (a) File-based execution — most reliable, also lets you inspect the script first
 curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \
+  https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh \
   -o /tmp/install.sh
 bash /tmp/install.sh local
 
 # (b) Process substitution — keeps the one-liner shape while restoring a real TTY for stdin
 bash <(curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh) local
+  https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh) local
 
 # (c) Non-interactive mode — accept all defaults (install every category)
 curl --proto '=https' --tlsv1.2 -fsSL \
-  https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \
-  | AGENTIC_BOOTSTRAP_ASSUME_YES=1 bash -s -- local
+  https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh \
+  | AGENTYARD_ASSUME_YES=1 bash -s -- local
 ```
 
 ### 7.2 Checking Logs
@@ -889,10 +889,10 @@ curl --proto '=https' --tlsv1.2 -fsSL \
 SETUP_LOG=1 ./install.sh local
 
 # Log file path will be shown, e.g.:
-ℹ️  Logs stored at /home/user/setup-local-ubuntu-20250109-123456.log
+ℹ️  Logs stored at /home/user/setup-local-linux-20250109-123456.log
 
 # View log
-cat /home/user/setup-local-ubuntu-20250109-123456.log
+cat /home/user/setup-local-linux-20250109-123456.log
 ```
 
 ---
@@ -910,4 +910,4 @@ For detailed review process, see:
 
 ## 9. Changelog
 
-The changelog is auto-managed in [CHANGELOG.md](CHANGELOG.md) by [release-please](https://github.com/googleapis/release-please) from Conventional Commits. Per-release details are published on [GitHub Releases](https://github.com/ozzy-labs/agentic-bootstrap/releases).
+The changelog is auto-managed in [CHANGELOG.md](CHANGELOG.md) by [release-please](https://github.com/googleapis/release-please) from Conventional Commits. Per-release details are published on [GitHub Releases](https://github.com/ozzy-labs/agentyard/releases).

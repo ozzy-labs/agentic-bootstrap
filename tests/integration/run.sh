@@ -69,7 +69,7 @@ for version in "${VERSIONS[@]}"; do
   printf '🐳 Testing against ubuntu:%s (scenario: %s)\n' "$version" "$SCENARIO"
   printf '═══════════════════════════════════════════\n'
 
-  tag="agentic-bootstrap-test:${version//[^A-Za-z0-9._-]/-}-${SCENARIO}"
+  tag="agentyard-test:${version//[^A-Za-z0-9._-]/-}-${SCENARIO}"
 
   if ! docker build \
     --build-arg "UBUNTU_VERSION=${version}" \

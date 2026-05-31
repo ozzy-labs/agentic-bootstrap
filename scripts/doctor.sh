@@ -55,7 +55,7 @@ doctor_record() {
 # 診断実行
 # ========================================
 
-echo "🩺 agentic-bootstrap doctor を実行中..."
+echo "🩺 agentyard doctor を実行中..."
 echo ""
 
 check_system_tools

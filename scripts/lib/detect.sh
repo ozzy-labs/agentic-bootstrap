@@ -4,10 +4,10 @@
 # このファイルは source して利用する。直接実行しない。
 
 # 非対話モードかどうかを判定
-# AGENTIC_BOOTSTRAP_ASSUME_YES=1（旧名 BOOTSTRAP_ASSUME_YES もフォールバック）
+# AGENTYARD_ASSUME_YES=1（旧名 AGENTIC_BOOTSTRAP_ASSUME_YES / BOOTSTRAP_ASSUME_YES もフォールバック）
 # または CI=true でプロンプトを自動回答する
 _is_non_interactive() {
-  [ "${AGENTIC_BOOTSTRAP_ASSUME_YES:-${BOOTSTRAP_ASSUME_YES:-0}}" = "1" ] || [ "${CI:-}" = "true" ]
+  [ "${AGENTYARD_ASSUME_YES:-${AGENTIC_BOOTSTRAP_ASSUME_YES:-${BOOTSTRAP_ASSUME_YES:-0}}}" = "1" ] || [ "${CI:-}" = "true" ]
 }
 
 # /etc/os-release を読み Ubuntu/Debian 系かを判定

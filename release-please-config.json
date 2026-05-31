@@ -3,7 +3,7 @@
 	"release-type": "simple",
 	"packages": {
 		".": {
-			"package-name": "agentic-bootstrap",
+			"package-name": "agentyard",
 			"changelog-path": "CHANGELOG.md",
 			"include-component-in-tag": false,
 			"draft": false,

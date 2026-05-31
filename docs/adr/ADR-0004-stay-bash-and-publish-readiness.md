@@ -8,10 +8,10 @@ ADR-0001 を継承・補強する。
 
 ## コンテキスト
 
-パブリック公開（OSS としての発信）に向けて、`agentic-bootstrap` の実装言語と配布形式を再検討する必要が生じた。具体的には以下の選択肢が候補に挙がった。
+パブリック公開（OSS としての発信）に向けて、`agentyard` の実装言語と配布形式を再検討する必要が生じた。具体的には以下の選択肢が候補に挙がった。
 
 1. **Bash 維持**: 現行の `install.sh` + `scripts/setup-local-*.sh` を Bash のまま継続し、保守性は責務分割で解決する。
-2. **TypeScript + npm パッケージ化**: `@ozzylabs/agentic-bootstrap` として npm に publish し、`npx` 経由で実行させる。
+2. **TypeScript + npm パッケージ化**: `@ozzylabs/agentyard` として npm に publish し、`npx` 経由で実行させる。
 3. **Bun 単一バイナリ**: TypeScript で書き、Bun で単一バイナリにコンパイルして GitHub Release で配布する。
 4. **Deno**: 同様に Deno の `deno install` ベースで配布する。
 
@@ -36,7 +36,7 @@ ADR-0001 を継承・補強する。
 
 ### 1. 依存最小化（ADR-0001 の継承）
 
-agentic-bootstrap は **ランタイム導入前** に実行されるツールである。Node.js 自身に依存させることは、依存解決の循環構造（`install.sh` で Node を入れた後に `npx` でメインロジックを呼ぶ）を生み、ツールの本質的役割と矛盾する。
+agentyard は **ランタイム導入前** に実行されるツールである。Node.js 自身に依存させることは、依存解決の循環構造（`install.sh` で Node を入れた後に `npx` でメインロジックを呼ぶ）を生み、ツールの本質的役割と矛盾する。
 
 ### 2. 業界標準
 

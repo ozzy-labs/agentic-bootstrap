@@ -24,16 +24,25 @@ setup() {
 
 @test "_prompt_default_yes: sets REPLY=Y and prints suffix in non-interactive mode" {
   CI=true
-  unset AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
+  unset AGENTYARD_ASSUME_YES AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
   REPLY=""
   _prompt_default_yes "Continue? [Y/n]: " >"$OUT_FILE"
   [ "$REPLY" = "Y" ]
   grep -q "Y (non-interactive)" "$OUT_FILE"
 }
 
-@test "_prompt_default_yes: respects AGENTIC_BOOTSTRAP_ASSUME_YES=1" {
+@test "_prompt_default_yes: respects AGENTYARD_ASSUME_YES=1 (canonical)" {
+  AGENTYARD_ASSUME_YES=1
+  unset AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES CI
+  REPLY=""
+  _prompt_default_yes "Continue? [Y/n]: " >"$OUT_FILE"
+  [ "$REPLY" = "Y" ]
+  grep -q "Y (non-interactive)" "$OUT_FILE"
+}
+
+@test "_prompt_default_yes: legacy AGENTIC_BOOTSTRAP_ASSUME_YES=1 still works (fallback)" {
+  unset AGENTYARD_ASSUME_YES BOOTSTRAP_ASSUME_YES CI
   AGENTIC_BOOTSTRAP_ASSUME_YES=1
-  unset BOOTSTRAP_ASSUME_YES CI
   REPLY=""
   _prompt_default_yes "Continue? [Y/n]: " >"$OUT_FILE"
   [ "$REPLY" = "Y" ]
@@ -41,7 +50,7 @@ setup() {
 }
 
 @test "_prompt_default_yes: legacy BOOTSTRAP_ASSUME_YES=1 still works (fallback)" {
-  unset AGENTIC_BOOTSTRAP_ASSUME_YES CI
+  unset AGENTYARD_ASSUME_YES AGENTIC_BOOTSTRAP_ASSUME_YES CI
   BOOTSTRAP_ASSUME_YES=1
   REPLY=""
   _prompt_default_yes "Continue? [Y/n]: " >"$OUT_FILE"
@@ -55,23 +64,31 @@ setup() {
 
 @test "_prompt_default_no: sets REPLY=N and prints suffix in non-interactive mode" {
   CI=true
-  unset AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
+  unset AGENTYARD_ASSUME_YES AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
   REPLY=""
   _prompt_default_no "Continue? [y/N]: " >"$OUT_FILE"
   [ "$REPLY" = "N" ]
   grep -q "N (non-interactive)" "$OUT_FILE"
 }
 
-@test "_prompt_default_no: respects AGENTIC_BOOTSTRAP_ASSUME_YES=1" {
+@test "_prompt_default_no: respects AGENTYARD_ASSUME_YES=1 (canonical)" {
+  AGENTYARD_ASSUME_YES=1
+  unset AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES CI
+  REPLY=""
+  _prompt_default_no "Continue? [y/N]: " >"$OUT_FILE"
+  [ "$REPLY" = "N" ]
+}
+
+@test "_prompt_default_no: legacy AGENTIC_BOOTSTRAP_ASSUME_YES=1 still works (fallback)" {
+  unset AGENTYARD_ASSUME_YES BOOTSTRAP_ASSUME_YES CI
   AGENTIC_BOOTSTRAP_ASSUME_YES=1
-  unset BOOTSTRAP_ASSUME_YES CI
   REPLY=""
   _prompt_default_no "Continue? [y/N]: " >"$OUT_FILE"
   [ "$REPLY" = "N" ]
 }
 
 @test "_prompt_default_no: legacy BOOTSTRAP_ASSUME_YES=1 still works (fallback)" {
-  unset AGENTIC_BOOTSTRAP_ASSUME_YES CI
+  unset AGENTYARD_ASSUME_YES AGENTIC_BOOTSTRAP_ASSUME_YES CI
   BOOTSTRAP_ASSUME_YES=1
   REPLY=""
   _prompt_default_no "Continue? [y/N]: " >"$OUT_FILE"
@@ -94,7 +111,7 @@ setup() {
   # CI 上では下の non-interactive ケースと同等になるが、
   # 少なくとも exit/error にはならないことを検証する。
   CI=true
-  unset AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
+  unset AGENTYARD_ASSUME_YES AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
   run _attach_tty_if_needed
   [ "$status" -eq 0 ]
 }
@@ -109,7 +126,7 @@ setup() {
     . scripts/lib/detect.sh
     # shellcheck disable=SC1091
     . scripts/lib/prompts.sh
-    unset AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
+    unset AGENTYARD_ASSUME_YES AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
     CI=true _attach_tty_if_needed
     echo "ok"
   ' </dev/null
@@ -117,7 +134,7 @@ setup() {
   [[ "$output" == *"ok"* ]]
 }
 
-@test "_attach_tty_if_needed: returns 0 with AGENTIC_BOOTSTRAP_ASSUME_YES=1" {
+@test "_attach_tty_if_needed: returns 0 with AGENTYARD_ASSUME_YES=1 (canonical)" {
   run bash -c '
     set -e
     cd "'"$SCRIPT_ROOT"'"
@@ -125,8 +142,8 @@ setup() {
     . scripts/lib/detect.sh
     # shellcheck disable=SC1091
     . scripts/lib/prompts.sh
-    unset CI BOOTSTRAP_ASSUME_YES
-    AGENTIC_BOOTSTRAP_ASSUME_YES=1 _attach_tty_if_needed
+    unset CI AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
+    AGENTYARD_ASSUME_YES=1 _attach_tty_if_needed
     echo "ok"
   ' </dev/null
   [ "$status" -eq 0 ]
@@ -149,7 +166,7 @@ setup() {
     . scripts/lib/detect.sh
     # shellcheck disable=SC1091
     . scripts/lib/prompts.sh
-    unset CI AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
+    unset CI AGENTYARD_ASSUME_YES AGENTIC_BOOTSTRAP_ASSUME_YES BOOTSTRAP_ASSUME_YES
     _attach_tty_if_needed
     echo "should not reach"
   ' </dev/null 2>&1
@@ -161,5 +178,5 @@ setup() {
   # 3 つの workaround すべてが含まれることを確認
   [[ "$output" == *"ファイル経由"* ]]
   [[ "$output" == *"プロセス置換"* ]]
-  [[ "$output" == *"AGENTIC_BOOTSTRAP_ASSUME_YES=1"* ]]
+  [[ "$output" == *"AGENTYARD_ASSUME_YES=1"* ]]
 }

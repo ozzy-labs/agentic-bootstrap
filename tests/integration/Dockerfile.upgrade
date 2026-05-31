@@ -38,6 +38,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Asia/Tokyo \
     LANG=C.UTF-8 \
     CI=true \
+    AGENTYARD_ASSUME_YES=1 \
     AGENTIC_BOOTSTRAP_ASSUME_YES=1 \
     INSTALL_CONTAINER=0
 
@@ -70,10 +71,11 @@ RUN git config --global user.name "Test User" \
 # 本物のユーザが実行する経路（README の "curl ... | bash -s -- local"）を
 # 完全に踏ませることで、tarball 展開先 / state 配置を実環境と一致させる。
 # 過去版がインタラクティブな prompt を持っていても CI=true と
-# AGENTIC_BOOTSTRAP_ASSUME_YES=1 で非対話化される。
+# AGENTYARD_ASSUME_YES=1 で非対話化される（旧バージョンは AGENTIC_BOOTSTRAP_* /
+# BOOTSTRAP_* の env 名で読むが、各層のフォールバックチェーンで吸収される）。
 ARG PRIOR_TAG
 RUN set -eux; \
-    curl -fsSL "https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/${PRIOR_TAG}/install.sh" \
+    curl -fsSL "https://raw.githubusercontent.com/ozzy-labs/agentyard/${PRIOR_TAG}/install.sh" \
       | bash -s -- local
 
 # -----------------------------------------------------------------------

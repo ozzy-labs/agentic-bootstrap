@@ -36,7 +36,7 @@ jobs:
           file: tests/integration/Dockerfile
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu-tag }}
-          tags: agentic-bootstrap-canary:${{ matrix.ubuntu-tag }}
+          tags: agentyard-canary:${{ matrix.ubuntu-tag }}
           load: true
           cache-from: type=gha,scope=canary-${{ matrix.ubuntu-tag }}
           cache-to: type=gha,scope=canary-${{ matrix.ubuntu-tag }},mode=max
@@ -46,7 +46,7 @@ jobs:
           GITHUB_TOKEN_FOR_MISE: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker run --rm -e "GITHUB_TOKEN=$GITHUB_TOKEN_FOR_MISE" \
-            agentic-bootstrap-canary:${{ matrix.ubuntu-tag }}
+            agentyard-canary:${{ matrix.ubuntu-tag }}
 
       - name: Open issue on failure
         if: failure()
@@ -117,7 +117,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      AGENTIC_BOOTSTRAP_ASSUME_YES: "1"
+      AGENTYARD_ASSUME_YES: "1"
       CI: "true"
       # コンテナ専用の重量ツールはランナー上では不要なので最小化
       INSTALL_CONTAINER: "0"
@@ -190,7 +190,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     env:
-      AGENTIC_BOOTSTRAP_ASSUME_YES: "1"
+      AGENTYARD_ASSUME_YES: "1"
       CI: "true"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

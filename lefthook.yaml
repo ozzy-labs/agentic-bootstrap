@@ -1,7 +1,7 @@
 extends:
   - lefthook-base.yaml
 
-# agentic-bootstrap specific overrides on top of the shared base from commons.
+# agentyard specific overrides on top of the shared base from commons.
 #
 # lefthook's extends merge has base-wins semantics: when a command key exists
 # in both base and local, the base entry wins (verified with lefthook 2.1.6
@@ -10,12 +10,12 @@ extends:
 #
 # Unpinning lefthook-base.yaml in .commons/sync.yaml lets future commons
 # improvements (e.g. ozzy-labs/commons#117 mise-exec wrapping) flow in
-# automatically; agentic-bootstrap specific behavior stays here.
+# automatically; agentyard specific behavior stays here.
 pre-commit:
   commands:
-    # Substitute base `shell` with severity=warning. agentic-bootstrap shell
+    # Substitute base `shell` with severity=warning. agentyard shell
     # scripts intentionally produce SC2088 (tilde-in-log) and other info-level
-    # findings. See ozzy-labs/agentic-bootstrap#6.
+    # findings. See ozzy-labs/agentyard#6.
     #
     # `run:` here is a stub; lefthook validate requires it to be a string,
     # but at execution time base's `run:` wins via extends merge — and `skip`
@@ -23,15 +23,15 @@ pre-commit:
     shell:
       run: "true"
       skip: true
-    agentic-bootstrap-shell:
+    agentyard-shell:
       glob: "**/*.sh"
       run: mise exec -- shfmt -w {staged_files} && mise exec -- shellcheck --severity=warning {staged_files}
       stage_fixed: true
-    # Substitute base `trivy` with --scanners vuln only. agentic-bootstrap
+    # Substitute base `trivy` with --scanners vuln only. agentyard
     # has no package manifest, so trivy's secret scanner is redundant with
-    # gitleaks. See ozzy-labs/agentic-bootstrap#63.
+    # gitleaks. See ozzy-labs/agentyard#63.
     trivy:
       run: "true"
       skip: true
-    agentic-bootstrap-trivy:
+    agentyard-trivy:
       run: mise exec -- trivy fs --scanners vuln --exit-code 1 --no-progress .

@@ -536,7 +536,7 @@ if command -v git &>/dev/null; then
   echo "✅ Git 設定完了"
 fi
 
-# NOTE: BROWSER=wslview の自動設定は WSL2 専用のため agentic-bootstrap の共通フローからは
+# NOTE: BROWSER=wslview の自動設定は WSL2 専用のため agentyard の共通フローからは
 # 除外している。WSL2 上で必要な場合は wslu インストール後に手動で追加する:
 #   echo 'export BROWSER=wslview' >> ~/.zshrc
 
