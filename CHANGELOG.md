@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.1](https://github.com/ozzy-labs/agentic-bootstrap/compare/v0.3.0...v0.3.1) (2026-05-31)
+
+
+### Bug Fixes
+
+* **docs:** align README with v0.3.0 implementation + add trivy to root .mise.toml ([#162](https://github.com/ozzy-labs/agentic-bootstrap/issues/162)) ([56ac3ba](https://github.com/ozzy-labs/agentic-bootstrap/commit/56ac3baeab5fa17a5fcbb4697e64ecdd99586eb5))
+* **prompts:** fail-loud when /dev/tty attach fails (silent prompt-invisibility bug) ([#159](https://github.com/ozzy-labs/agentic-bootstrap/issues/159)) ([a8a66bd](https://github.com/ozzy-labs/agentic-bootstrap/commit/a8a66bd91c70243513b3ed1a4c06dfb0d28a4543))
+
+
+### Documentation
+
+* **adr:** modernize ADR-0002 / ADR-0003 and add ADR-0005 (multiplexer + macOS policy) ([#164](https://github.com/ozzy-labs/agentic-bootstrap/issues/164)) ([66f5fe3](https://github.com/ozzy-labs/agentic-bootstrap/commit/66f5fe361c29a1e877683c527aa6c3b2bd68c25b))
+
+
+### Tests
+
+* automate PR [#150](https://github.com/ozzy-labs/agentic-bootstrap/issues/150) manual cases (.tmux.conf respect, macOS skip) + smoke lib syntax loop + doctor exit code ([#163](https://github.com/ozzy-labs/agentic-bootstrap/issues/163)) ([4a6fdcf](https://github.com/ozzy-labs/agentic-bootstrap/commit/4a6fdcfac11424f8b2a76ac951c3d4a3fd22aba9))
+* **smoke:** widen doctor exit code acceptance to spec {0,1,2} ([#165](https://github.com/ozzy-labs/agentic-bootstrap/issues/165)) ([c3b9254](https://github.com/ozzy-labs/agentic-bootstrap/commit/c3b92541ddc48db26177e8024b7a968743fad222))
+
 ## [0.3.0](https://github.com/ozzy-labs/agentic-bootstrap/compare/v0.2.0...v0.3.0) (2026-05-30)
 
 
