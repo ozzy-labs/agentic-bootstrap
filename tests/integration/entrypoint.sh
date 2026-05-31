@@ -10,6 +10,7 @@ set -eo pipefail
 RUN1_LOG="/tmp/run1.log"
 RUN2_LOG="/tmp/run2.log"
 RUN3_LOG="/tmp/run3.log"
+RUN4_LOG="/tmp/run4.log"
 ASSERT_SCRIPT="/workspace/tests/integration/assert-tools.sh"
 
 printf '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
@@ -173,6 +174,60 @@ if ! grep -q 'tmux-256color' "$HOME/.tmux.conf"; then
   exit 1
 fi
 echo "✅ ~/.tmux.conf created with bundled defaults"
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🔵 4th run — existing ~/.tmux.conf is respected (NOT overwritten)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+# PR #150 の手動テスト項目 #2 を自動化（audit gap δ-1）。
+# install_multiplexer_tools の `if [ -f "$HOME/.tmux.conf" ]` 分岐
+# （scripts/lib/install-multiplexer.sh:41）が、既存ユーザー設定を尊重して
+# 上書きしないことを検証する。README §7.1.6 で明記されている挙動。
+#
+# 3rd run 完了時点で ~/.tmux.conf が既に存在しているため、ここで内容を
+# センチネル付きの最小ファイルに置き換えてから INSTALL_TMUX=1 を再実行し、
+# センチネル行が保持されていること = 上書きされていないことを確認する。
+printf '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+printf '🔵 4th run — existing ~/.tmux.conf respected (NOT overwritten)\n'
+printf '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+
+TMUX_SENTINEL="# SENTINEL: pre-existing user config (audit-δ regression)"
+cat >"$HOME/.tmux.conf" <<EOF
+$TMUX_SENTINEL
+# 既存ユーザー設定を模擬。install_multiplexer_tools はこのファイルを
+# 検出して上書きせず "⏭️  ~/.tmux.conf は既に存在（上書きしません）" を出力するはず。
+set -g status-bg colour234
+EOF
+
+if ! INSTALL_TMUX=1 /workspace/install.sh local 2>&1 | tee "$RUN4_LOG"; then
+  echo "❌ 4th run (INSTALL_TMUX=1 with pre-existing ~/.tmux.conf) failed"
+  exit 1
+fi
+assert_no_fatal_errors "$RUN4_LOG" "4th run"
+
+# センチネル行が保持されていること = 上書きされていない
+if ! grep -qF "$TMUX_SENTINEL" "$HOME/.tmux.conf"; then
+  echo "❌ ~/.tmux.conf が上書きされています（センチネル行が消失）"
+  echo "--- 現在の ~/.tmux.conf ---"
+  cat "$HOME/.tmux.conf"
+  exit 1
+fi
+
+# 同梱の最小構成（tmux-256color）が混入していないこと（=完全に尊重されている）
+if grep -q 'tmux-256color' "$HOME/.tmux.conf"; then
+  echo "❌ ~/.tmux.conf に同梱構成（tmux-256color 行）が混入しています"
+  echo "   = 既存ファイルが merge or 上書きされている可能性"
+  cat "$HOME/.tmux.conf"
+  exit 1
+fi
+
+# 「上書きしません」スキップログが 4th run のログに出ていること
+if ! grep -q '上書きしません' "$RUN4_LOG"; then
+  echo "❌ 4th run のログに「上書きしません」スキップメッセージがありません"
+  echo "   install_multiplexer_tools の既存ファイル分岐が走っていない可能性"
+  exit 1
+fi
+echo "✅ ~/.tmux.conf is respected (sentinel preserved, skip log emitted)"
 
 # NOTE: setup-local-linux.sh の直接 pipe 実行テストは、scripts/lib/*.sh への
 # 責務分割（#88）以降は実装と整合しないため削除した。実環境では
