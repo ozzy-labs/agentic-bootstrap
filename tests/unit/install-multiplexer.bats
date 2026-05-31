@@ -19,6 +19,9 @@
 # bats 化は当面 deferred。lib 化された折に本ファイルへテスト追加すること。
 # =======================================================================
 
+# `run !` 形式（bats >= 1.5.0）を使う。SC2314 回避のため。
+bats_require_minimum_version 1.5.0
+
 setup() {
   SCRIPT_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
 
@@ -144,10 +147,14 @@ EOF
 
   # 既存ファイルが保持されている（sentinel が残っている）
   grep -qF "$sentinel" "$HOME/.tmux.conf"
-  # 同梱内容（tmux-256color）が混入していない
-  ! grep -q 'tmux-256color' "$HOME/.tmux.conf"
   # スキップログが出ている
   [[ "$output" == *"上書きしません"* ]]
+  # 同梱内容（tmux-256color）が混入していないこと。
+  # NOTE: bats の `! cmd` は POSIX 例外で set -e から除外され、mid-test の
+  # `! grep` は silently swallow される（SC2314）。`run !` 形式（bats >= 1.5.0）
+  # で「cmd が non-zero 終了することを assert」する。grep -q が見つけてしまうと
+  # bats が即 fail を報告する（追加の assert 不要）。
+  run ! grep -q 'tmux-256color' "$HOME/.tmux.conf"
 }
 
 # ------------------------------------------------------------------
@@ -162,9 +169,10 @@ EOF
   [ "$status" -eq 0 ]
   grep -q "ensure_mise_installed" "$MOCK_LOG"
   grep -q "mise_use_global zellij@" "$MOCK_LOG"
-  # tmux 経路は呼ばれない
-  ! grep -q "apt_install_or_upgrade" "$MOCK_LOG"
   [ ! -f "$HOME/.tmux.conf" ]
+  # tmux 経路は呼ばれない（SC2314 回避: `run !` で「cmd が fail することを assert」）。
+  # grep -q が apt_install_or_upgrade を見つけてしまうと bats が即 fail を報告する。
+  run ! grep -q "apt_install_or_upgrade" "$MOCK_LOG"
 }
 
 # ------------------------------------------------------------------

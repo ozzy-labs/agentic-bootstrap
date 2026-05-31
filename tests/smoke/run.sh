@@ -162,11 +162,13 @@ done
 # 発火と exit code が想定範囲内かのみ確認する（深い内容検証は別レイヤ）。
 # fresh subagent worktree は warn が出やすいため 0 / 1 を許容する。
 # 2 (error)・3 以上は即 fail。
+#
+# NOTE: 本スクリプトは `set -u` のみで `set -e` を使わない。`set +e/-e` 切替は
+# 副作用（後続コード全体に errexit を残す）が出るため、`|| true` で exit code を
+# 捕捉する pattern を使う。
 printf '▶ doctor.sh exit code in {0,1}\n'
-set +e
-bash scripts/doctor.sh >/dev/null 2>&1
-doctor_exit=$?
-set -e
+doctor_exit=0
+bash scripts/doctor.sh >/dev/null 2>&1 || doctor_exit=$?
 if [ "$doctor_exit" -eq 0 ] || [ "$doctor_exit" -eq 1 ]; then
   printf '  ✅ pass (exit=%d)\n' "$doctor_exit"
   PASS=$((PASS + 1))
