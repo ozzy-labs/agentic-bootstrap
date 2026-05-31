@@ -51,6 +51,17 @@ fi' "~/.zshrc に ~/.zshrc.d/ の読み込み設定を追加しました"
       _mise_at_home exec chezmoi -- chezmoi apply --interactive --source "$repo_root/dotfiles"
     fi
     echo "  ✅ chezmoi による設定適用完了"
+
+    # chezmoi apply で書き出された ~/.config/mise/config.toml に宣言されているが
+    # 未インストールのツール（trivy 等、install_* 関数で明示的に mise_use_global
+    # していないもの）を実体化する。これをやらないと lefthook の trivy フック等が
+    # mise shim 解決失敗で落ちる（dotfiles テンプレート追加ツールは全てここでカバー）。
+    echo "📦 chezmoi apply 後の mise install で template 追加ツールを実体化中..."
+    if _mise_at_home install; then
+      echo "  ✅ mise install 完了"
+    else
+      echo "  ⚠️  mise install に失敗しました（手動で確認: cd \$HOME && mise install）"
+    fi
   fi
 
   echo "✅ 開発補助ツールインストール完了"

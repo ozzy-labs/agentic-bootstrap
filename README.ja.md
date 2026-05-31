@@ -62,7 +62,7 @@ agentic-bootstrap/
 - ⚡ **統一バージョン管理** - mise で Node.js LTS / pnpm / Python / uv / gitleaks / shellcheck / ast-grep / yq を一元管理
 - 🐍 **Python エコシステム** - mise 管理の Python + uv（パッケージ・venv・CLI ツール）
 - ☁️ **クラウド CLI** - AWS CLI v2（デフォルト ON）/ Azure CLI, Google Cloud CLI（opt-in）
-- 🔒 **モダンなシークレット検知** - gitleaks（2026 デファクト、アクティブメンテ）を mise で導入、プロジェクト側の lefthook と連携
+- 🔒 **モダンなシークレット / 脆弱性スキャン** - gitleaks（2026 デファクト シークレットスキャナ）+ trivy（ファイルシステム脆弱性スキャナ。本リポの lefthook pre-commit で利用）を mise で導入、プロジェクト側の lefthook と連携
 - 🎨 **シェル体験** - zsh + oh-my-zsh + プラグイン（Ubuntu/Debian）、fzf / ripgrep / fd / jq / tree（opt-in: tmux / zellij multiplexer）
 - 🔄 **ワンショット更新** - `install.sh update` で mise / uv / npm 管理ツールを一括更新
 - 🐧 **Ubuntu LTS 幅広くサポート** - 22.04 / 24.04 を PR / main push で CI 検証、**次期 LTS 26.04 Resolute Raccoon** も週次 canary で先行検証済み。LTS 切替直後も動作する
@@ -126,8 +126,8 @@ bash /tmp/agentic-bootstrap-install.sh local
 ピン留めした再現可能なインストールには、タグ付きリリースを使ってください。各 GitHub Release には `install.sh` と `install.sh.sha256` が同梱されています。
 
 ```bash
-# 特定リリースに固定（v0.1.0 を最新タグに置き換える）
-TAG=v0.1.0
+# 特定リリースに固定（v0.3.0 を最新タグに置き換える）
+TAG=v0.3.0
 BASE="https://github.com/ozzy-labs/agentic-bootstrap/releases/download/${TAG}"
 
 # スクリプトとチェックサムをダウンロード
@@ -147,6 +147,73 @@ bash install.sh local
 git clone https://github.com/ozzy-labs/agentic-bootstrap.git
 cd agentic-bootstrap
 ./install.sh zsh
+./install.sh local
+```
+
+### 4.4 環境変数 / CLI オプション
+
+#### `install.sh` の CLI オプション
+
+| 引数 | 説明 |
+|---|---|
+| `zsh` \| `local` \| `all` \| `update` \| `doctor` | サブコマンド（既定: `all`）。各々の動作は [§6](#6-スクリプト) を参照 |
+| `--ref <git-ref>` | リモート実行時にダウンロードするブランチ / タグ / コミット（既定: `main`） |
+| `-y`, `--auto` | 推奨設定を確認なしで適用（`AGENTIC_BOOTSTRAP_ASSUME_YES=1` を設定） |
+| `--interactive` | 対話プロンプトを強制（`AGENTIC_BOOTSTRAP_ASSUME_YES=0` を設定）。`CI=true` を上書きしたい場合に使用 |
+| `-h`, `--help` | ヘルプ表示 |
+
+#### トップレベルの環境変数
+
+| 変数 | 既定値 | 効果 |
+|---|---|---|
+| `AGENTIC_BOOTSTRAP_REF` | `main` | `curl \| bash` 実行時にダウンロードする既定 git ref。旧名 `BOOTSTRAP_REF` もフォールバック |
+| `AGENTIC_BOOTSTRAP_ASSUME_YES` | `0` | `1` = 非対話モード。「既定 Y」プロンプトを自動承認し、「既定 N」プロンプトをスキップ。旧名 `BOOTSTRAP_ASSUME_YES` もフォールバック。`CI=true` でも自動で ON |
+| `SETUP_LOG` | 未設定 | セットアップ / 更新の全出力をログファイルに tee する。`1` / `true` で既定パス（`~/setup-local-<os>-YYYYMMDD-HHMMSS.log`）を使用。それ以外の値はカスタムパスとして扱う |
+
+#### `INSTALL_*` カテゴリフラグ（Linux: `setup-local-linux.sh`）
+
+各フラグは `1`（インストール）/ `0`（スキップ）を取る。既定値は `scripts/setup-local-linux.sh` に対応。対話モードでは各カテゴリで確認、`AGENTIC_BOOTSTRAP_ASSUME_YES=1` ではここの既定値が使われる。
+
+| 変数 | 既定値 | カテゴリ |
+|---|---|---|
+| `INSTALL_BUILD_TOOLS` | `1` | build-essential |
+| `INSTALL_BASIC_CLI` | `1` | tree, fzf, jq, ripgrep, fd, unzip |
+| `INSTALL_GIT_TOOLS` | `1` | Git, GitHub CLI, gitleaks |
+| `INSTALL_NODE` | `1` | mise + Node.js LTS + pnpm |
+| `INSTALL_PYTHON` | `1` | mise + Python + uv |
+| `INSTALL_CONTAINER` | `1` | Docker Engine, Docker Compose, bubblewrap |
+| `INSTALL_AWS_CLI` | `1` | AWS CLI v2 |
+| `INSTALL_AZURE_CLI` | `0` | Azure CLI（opt-in） |
+| `INSTALL_GCLOUD_CLI` | `0` | Google Cloud CLI（opt-in） |
+| `INSTALL_CLAUDE_CODE` | `1` | Claude Code |
+| `INSTALL_CODEX_CLI` | `1` | Codex CLI |
+| `INSTALL_COPILOT_CLI` | `1` | GitHub Copilot CLI |
+| `INSTALL_GEMINI_CLI` | `1` | Gemini CLI |
+| `INSTALL_AI_POWER_TOOLS` | `1` | markitdown, tesseract-ocr(+jpn), ffmpeg, ast-grep, yq |
+| `INSTALL_TMUX` | `0` | tmux（apt、opt-in） |
+| `INSTALL_ZELLIJ` | `0` | Zellij（mise、opt-in） |
+| `INSTALL_DEV_TOOLS` | `1` | just, zoxide, shellcheck, chezmoi |
+
+#### `INSTALL_*` カテゴリフラグ（macOS: `setup-local-macos.sh`）
+
+macOS 版は意図的に軽量化されている — Docker Desktop / AI エージェント CLI / クラウド CLI は自動インストール対象外（§6.3.2 参照）。
+
+| 変数 | 既定値 | カテゴリ |
+|---|---|---|
+| `INSTALL_MISE_LANGUAGES` | `1` | mise + Node.js LTS + pnpm + Python + uv |
+| `INSTALL_GIT_TOOLS` | `1` | gitleaks（mise 経由） |
+| `INSTALL_AI_POWER_TOOLS` | `1` | ast-grep, yq, markitdown |
+| `INSTALL_DEV_TOOLS` | `1` | just, zoxide, shellcheck, chezmoi |
+| `INSTALL_TMUX` | `0` | macOS では notice のみ表示。必要なら `brew install tmux` |
+| `INSTALL_ZELLIJ` | `0` | Zellij（mise 経由、opt-in） |
+
+例 — Linux で非対話・Azure CLI 追加・AI エージェント CLI を全部スキップ:
+
+```bash
+AGENTIC_BOOTSTRAP_ASSUME_YES=1 \
+INSTALL_AZURE_CLI=1 \
+INSTALL_CLAUDE_CODE=0 INSTALL_CODEX_CLI=0 INSTALL_COPILOT_CLI=0 INSTALL_GEMINI_CLI=0 \
+SETUP_LOG=1 \
 ./install.sh local
 ```
 
@@ -322,6 +389,8 @@ Ubuntu/Debian 環境（WSL2 + 非 WSL Linux：Ubuntu Server / EC2 / GCE / コン
     - **just** - タスクランナー
     - **zoxide** - ディレクトリジャンプ機能を持つスマートな cd コマンド
     - **shellcheck**（mise 経由）- シェルスクリプトの静的解析（AI 生成スクリプトの品質担保にも有用）
+    - **chezmoi**（mise 経由）- リポジトリの `dotfiles/` テンプレートを `$HOME` に適用するドットファイル管理ツール（ADR-0003 参照）
+    - **trivy**（mise + dotfiles テンプレート経由）- ファイルシステム脆弱性スキャナ。本リポの lefthook pre-commit に組み込み済み（`mise exec -- trivy fs --scanners vuln`）
 
 **6.2.2 主な機能**
 
@@ -441,6 +510,7 @@ exit
 - `init.defaultBranch` - デフォルトブランチ（main）
 - `core.autocrlf` - 改行コード設定（input）
 - `core.fileMode` - 実行権限の追跡（true）
+- `pull.rebase` - pull 時のマージ戦略（false。`git pull` でマージコミットを作る）
 
 **6.2.6 エラーハンドリングについて**
 
@@ -535,11 +605,12 @@ SETUP_LOG=/tmp/setup.log ./install.sh local
 **6.3.1 インストールされるツール**
 
 - **mise** — `curl -fsSL https://mise.run | sh`（Linux と同一の正規パス）
-- **Node.js LTS / pnpm / Python / uv**（`mise use -g` 経由、ADR-0006 準拠）
+- **Node.js LTS / pnpm / Python / uv**（`mise use -g` 経由）
 - **gitleaks**（mise 経由）— モダンなシークレットスキャナ
+- **trivy**（mise + dotfiles テンプレート経由）— ファイルシステム脆弱性スキャナ（lefthook pre-commit で使用。Linux と同じ `github:aquasecurity/trivy` ピン）
 - **ast-grep / yq**（mise 経由）— AI パワーツール
 - **markitdown[all]**（`uv tool install` 経由）
-- **just / zoxide / shellcheck**（mise 経由）— 開発補助
+- **just / zoxide / shellcheck / chezmoi**（mise 経由）— 開発補助（chezmoi は `dotfiles/` テンプレートを適用、ADR-0003 準拠）
 - **zellij**（mise 経由）— ターミナルマルチプレクサ（opt-in。`INSTALL_ZELLIJ=1` を設定）
 
 **6.3.2 自動化対象外（macOS では手動）**
@@ -578,7 +649,7 @@ AGENTIC_BOOTSTRAP_ASSUME_YES=1 ./scripts/setup-local-macos.sh
 
 | バックエンド | 更新内容 |
 |---|---|
-| **mise** | `mise self-update` + `mise upgrade` + `mise reshim` |
+| **mise** | `mise self-update` + `mise upgrade` + `mise reshim`（gitleaks / trivy / ast-grep / yq / chezmoi / just / shellcheck 等を一括） |
 | **uv tool** | `uv tool upgrade --all`（markitdown 等） |
 | **npm global** | `@openai/codex` / `@google/gemini-cli` |
 | **独自インストーラ** | `claude update` / `copilot update`（タイムアウト付き） |

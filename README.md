@@ -62,7 +62,7 @@ agentic-bootstrap/
 - ⚡ **Unified Version Manager** - mise manages Node.js LTS / pnpm / Python / uv / gitleaks / shellcheck / ast-grep / yq
 - 🐍 **Python Ecosystem** - mise-managed Python + uv for packages/venvs/CLI tools
 - ☁️ **Cloud CLIs** - AWS CLI v2 (default) / Azure CLI, Google Cloud CLI (opt-in)
-- 🔒 **Modern Secret Scanning** - gitleaks (2026 de-facto, actively maintained); pair with lefthook per project
+- 🔒 **Modern Secret / Vulnerability Scanning** - gitleaks (2026 de-facto secret scanner) + trivy (filesystem vuln scanner, used by this repo's lefthook pre-commit); pair with lefthook per project
 - 🎨 **Shell Experience** - zsh + oh-my-zsh + plugins (Linux), fzf / ripgrep / fd / jq / tree (opt-in: tmux / zellij multiplexer)
 - 🔄 **One-shot Upgrades** - `install.sh update` batch-refreshes mise/uv/npm-managed tools
 - 🐧 **Linux (Ubuntu/Debian-based) LTS Coverage** - CI-verified on 22.04 + 24.04; canary-tested on **26.04 Resolute Raccoon** (next LTS) so the toolchain continues to work the day 26.04 lands on WSL2
@@ -126,8 +126,8 @@ bash /tmp/agentic-bootstrap-install.sh local
 For pinned, reproducible installs, use a tagged release. Each GitHub Release ships `install.sh` and `install.sh.sha256`:
 
 ```bash
-# Pin to a specific release (replace v0.1.0 with the latest tag)
-TAG=v0.1.0
+# Pin to a specific release (replace v0.3.0 with the latest tag)
+TAG=v0.3.0
 BASE="https://github.com/ozzy-labs/agentic-bootstrap/releases/download/${TAG}"
 
 # Download both the script and its checksum
@@ -147,6 +147,73 @@ bash install.sh local
 git clone https://github.com/ozzy-labs/agentic-bootstrap.git
 cd agentic-bootstrap
 ./install.sh zsh
+./install.sh local
+```
+
+### 4.4 Environment variables / CLI options
+
+#### CLI options for `install.sh`
+
+| Argument | Description |
+|---|---|
+| `zsh` \| `local` \| `all` \| `update` \| `doctor` | Subcommand (default `all`). See [§6](#6-scripts) for what each runs. |
+| `--ref <git-ref>` | Branch / tag / commit to download when running remotely (default `main`) |
+| `-y`, `--auto` | Apply recommended defaults without prompts (sets `AGENTIC_BOOTSTRAP_ASSUME_YES=1`) |
+| `--interactive` | Force interactive prompts (sets `AGENTIC_BOOTSTRAP_ASSUME_YES=0`) — useful to override `CI=true` |
+| `-h`, `--help` | Show usage |
+
+#### Top-level environment variables
+
+| Variable | Default | Effect |
+|---|---|---|
+| `AGENTIC_BOOTSTRAP_REF` | `main` | Default git ref to download when running through `curl \| bash`. Legacy alias `BOOTSTRAP_REF` is still honored as a fallback. |
+| `AGENTIC_BOOTSTRAP_ASSUME_YES` | `0` | `1` = non-interactive, auto-accept "default Y" prompts and skip "default N" prompts. Legacy alias `BOOTSTRAP_ASSUME_YES` is honored. `CI=true` also forces this on. |
+| `SETUP_LOG` | unset | When set, tees all setup / update output into a log file. `1` or `true` uses the default path (`~/setup-local-<os>-YYYYMMDD-HHMMSS.log`); any other value is treated as a custom path. |
+
+#### `INSTALL_*` category flags (Linux: `setup-local-linux.sh`)
+
+Each flag accepts `1` (install) or `0` (skip). Defaults shown match `scripts/setup-local-linux.sh`. Interactive mode prompts for each category; `AGENTIC_BOOTSTRAP_ASSUME_YES=1` uses these defaults.
+
+| Variable | Default | Category |
+|---|---|---|
+| `INSTALL_BUILD_TOOLS` | `1` | build-essential |
+| `INSTALL_BASIC_CLI` | `1` | tree, fzf, jq, ripgrep, fd, unzip |
+| `INSTALL_GIT_TOOLS` | `1` | Git, GitHub CLI, gitleaks |
+| `INSTALL_NODE` | `1` | mise + Node.js LTS + pnpm |
+| `INSTALL_PYTHON` | `1` | mise + Python + uv |
+| `INSTALL_CONTAINER` | `1` | Docker Engine, Docker Compose, bubblewrap |
+| `INSTALL_AWS_CLI` | `1` | AWS CLI v2 |
+| `INSTALL_AZURE_CLI` | `0` | Azure CLI (opt-in) |
+| `INSTALL_GCLOUD_CLI` | `0` | Google Cloud CLI (opt-in) |
+| `INSTALL_CLAUDE_CODE` | `1` | Claude Code |
+| `INSTALL_CODEX_CLI` | `1` | Codex CLI |
+| `INSTALL_COPILOT_CLI` | `1` | GitHub Copilot CLI |
+| `INSTALL_GEMINI_CLI` | `1` | Gemini CLI |
+| `INSTALL_AI_POWER_TOOLS` | `1` | markitdown, tesseract-ocr(+jpn), ffmpeg, ast-grep, yq |
+| `INSTALL_TMUX` | `0` | tmux (apt, opt-in) |
+| `INSTALL_ZELLIJ` | `0` | Zellij (mise, opt-in) |
+| `INSTALL_DEV_TOOLS` | `1` | just, zoxide, shellcheck, chezmoi |
+
+#### `INSTALL_*` category flags (macOS: `setup-local-macos.sh`)
+
+macOS is intentionally lighter — Docker Desktop / AI agent CLIs / cloud CLIs are not auto-installed (see §6.3.2).
+
+| Variable | Default | Category |
+|---|---|---|
+| `INSTALL_MISE_LANGUAGES` | `1` | mise + Node.js LTS + pnpm + Python + uv |
+| `INSTALL_GIT_TOOLS` | `1` | gitleaks (via mise) |
+| `INSTALL_AI_POWER_TOOLS` | `1` | ast-grep, yq, markitdown |
+| `INSTALL_DEV_TOOLS` | `1` | just, zoxide, shellcheck, chezmoi |
+| `INSTALL_TMUX` | `0` | macOS prints a notice only — install via `brew install tmux` |
+| `INSTALL_ZELLIJ` | `0` | Zellij (via mise, opt-in) |
+
+Example — non-interactive Linux install with Azure CLI added and AI agent CLIs skipped:
+
+```bash
+AGENTIC_BOOTSTRAP_ASSUME_YES=1 \
+INSTALL_AZURE_CLI=1 \
+INSTALL_CLAUDE_CODE=0 INSTALL_CODEX_CLI=0 INSTALL_COPILOT_CLI=0 INSTALL_GEMINI_CLI=0 \
+SETUP_LOG=1 \
 ./install.sh local
 ```
 
@@ -322,6 +389,8 @@ You can run it either through `install.sh` or directly via `scripts/setup-local-
     - **just** - Task runner
     - **zoxide** - Smarter cd command with directory jumping
     - **shellcheck** (via mise) - Shell script static analysis (useful for AI-generated scripts too)
+    - **chezmoi** (via mise) - Dotfile manager that applies the repo's `dotfiles/` templates to `$HOME` (see ADR-0003)
+    - **trivy** (via mise + dotfiles template) - Filesystem vulnerability scanner; wired into this repo's lefthook pre-commit hook (`mise exec -- trivy fs --scanners vuln`)
 
 **6.2.2 Key Features**
 
@@ -441,6 +510,7 @@ The following settings are configured interactively during script execution:
 - `init.defaultBranch` - Default branch (main)
 - `core.autocrlf` - Line ending configuration (input)
 - `core.fileMode` - Track execution permissions (true)
+- `pull.rebase` - Pull merge strategy (false; merge commit on `git pull`)
 
 **6.2.6 Error Handling**
 
@@ -535,11 +605,12 @@ macOS counterpart to `setup-local-linux.sh`, intentionally lighter-weight: focus
 **6.3.1 What Gets Installed**
 
 - **mise** — installed via `curl -fsSL https://mise.run | sh` (same canonical path as Linux)
-- **Node.js LTS / pnpm / Python / uv** (via `mise use -g`, ADR-0006 compliant)
+- **Node.js LTS / pnpm / Python / uv** (via `mise use -g`)
 - **gitleaks** (via mise) — modern secret scanner
+- **trivy** (via mise + dotfiles template) — filesystem vulnerability scanner (used by lefthook pre-commit; same `github:aquasecurity/trivy` pin as Linux)
 - **ast-grep / yq** (via mise) — AI power tools
 - **markitdown[all]** (via `uv tool install`)
-- **just / zoxide / shellcheck** (via mise) — dev helpers
+- **just / zoxide / shellcheck / chezmoi** (via mise) — dev helpers (chezmoi applies `dotfiles/` templates per ADR-0003)
 - **zellij** (via mise) — terminal multiplexer (opt-in; set `INSTALL_ZELLIJ=1`)
 
 **6.3.2 What Is NOT Installed (manual on macOS)**
@@ -578,7 +649,7 @@ A single entry point that refreshes every tool installed by the setup script, ac
 
 | Backend | Tools updated |
 |---|---|
-| **mise** | `mise self-update` + `mise upgrade` + `mise reshim` |
+| **mise** | `mise self-update` + `mise upgrade` + `mise reshim` (covers gitleaks / trivy / ast-grep / yq / chezmoi / just / shellcheck etc.) |
 | **uv tool** | `uv tool upgrade --all` (e.g. markitdown) |
 | **npm global** | `@openai/codex`, `@google/gemini-cli` |
 | **Native installer** | `claude update`, `copilot update` (timeout-guarded) |
