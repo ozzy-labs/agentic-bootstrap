@@ -11,7 +11,7 @@
 
 ## プロジェクト概要
 
-`agentic-bootstrap`: Bash 製の開発ホストプロビジョナ (Linux/WSL2/macOS)。AI エージェント駆動開発に必要なツール群を一発で導入する。
+`agentyard`: Bash 製の開発ホストプロビジョナ (Linux/WSL2/macOS)。AI エージェント駆動開発に必要なツール群を一発で導入する。
 
 ## Tech Stack
 

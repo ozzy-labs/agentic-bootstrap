@@ -55,7 +55,7 @@ jobs:
           file: tests/integration/Dockerfile${{ matrix.scenario == 'upgrade' && '.upgrade' || '' }}
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu }}
-          tags: agentic-bootstrap-test:${{ matrix.ubuntu }}-${{ matrix.scenario }}
+          tags: agentyard-test:${{ matrix.ubuntu }}-${{ matrix.scenario }}
           load: true
           # cache scope を scenario ごとに分離する。fresh と upgrade は
           # 別 Dockerfile かつ多段ビルド構成も異なるため、共有すると
@@ -69,4 +69,4 @@ jobs:
           GITHUB_TOKEN_FOR_MISE: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker run --rm -e "GITHUB_TOKEN=$GITHUB_TOKEN_FOR_MISE" \
-            agentic-bootstrap-test:${{ matrix.ubuntu }}-${{ matrix.scenario }}
+            agentyard-test:${{ matrix.ubuntu }}-${{ matrix.scenario }}

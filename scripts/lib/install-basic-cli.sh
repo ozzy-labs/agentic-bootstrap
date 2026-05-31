@@ -51,7 +51,7 @@ install_basic_cli_tools() {
   # unzip （AWS CLI 等に必要）
   apt_install_or_upgrade "unzip" "unzip" "unzip"
 
-  # NOTE: wslu / wslview は WSL2 専用ユーティリティのため、agentic-bootstrap の
+  # NOTE: wslu / wslview は WSL2 専用ユーティリティのため、agentyard の
   # 共通フローからは除外している。WSL2 上で `wslview` が必要な場合は
   # 各 WSL ディストリで手動インストールする想定:
   #   sudo apt-get install -y wslu  # Ubuntu 22.04 / 24.04 では標準リポジトリに含まれる

@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/lib/prompts.sh
-# 対話プロンプトヘルパー。非対話モード（CI / AGENTIC_BOOTSTRAP_ASSUME_YES、旧名 BOOTSTRAP_ASSUME_YES）では自動応答する。
+# 対話プロンプトヘルパー。非対話モード（CI / AGENTYARD_ASSUME_YES、旧名 AGENTIC_BOOTSTRAP_ASSUME_YES / BOOTSTRAP_ASSUME_YES）では自動応答する。
 # このファイルは source して利用する。前提: lib/detect.sh が事前に source されていること。
 
 # [Y/n] プロンプト（既定 Y）を処理し、REPLY に結果を設定する
@@ -67,15 +67,15 @@ _attach_tty_if_needed() {
     printf '%s\n' "ℹ️  対処法:"
     printf '%s\n' "    1. ファイル経由で実行する（推奨）:"
     printf '%s\n' "         curl --proto '=https' --tlsv1.2 -fsSL \\"
-    printf '%s\n' "           https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \\"
+    printf '%s\n' "           https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh \\"
     printf '%s\n' "           -o /tmp/install.sh && bash /tmp/install.sh local"
     printf '%s\n' "    2. プロセス置換で実行する:"
     printf '%s\n' "         bash <(curl --proto '=https' --tlsv1.2 -fsSL \\"
-    printf '%s\n' "           https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh) local"
+    printf '%s\n' "           https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh) local"
     printf '%s\n' "    3. 非対話モードで実行する（全カテゴリを既定値でインストール）:"
     printf '%s\n' "         curl --proto '=https' --tlsv1.2 -fsSL \\"
-    printf '%s\n' "           https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh \\"
-    printf '%s\n' "           | AGENTIC_BOOTSTRAP_ASSUME_YES=1 bash -s -- local"
+    printf '%s\n' "           https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh \\"
+    printf '%s\n' "           | AGENTYARD_ASSUME_YES=1 bash -s -- local"
   } >&2
   exit 1
 }

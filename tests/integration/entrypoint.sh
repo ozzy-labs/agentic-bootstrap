@@ -26,7 +26,7 @@ fi
 # 終了コードだけでは silent failure を捕まえられない。
 # 実例:
 #   - mise の untrusted config エラー（`.mise.toml` を信頼登録していない場合に
-#     shim 呼び出しが拒否される。https://github.com/ozzy-labs/agentic-bootstrap/issues 参照）
+#     shim 呼び出しが拒否される。https://github.com/ozzy-labs/agentyard/issues 参照）
 #   - apt の Signed-By 競合（旧 add-apt-repository 由来 `.sources` と新 `.list` の併存）
 # install.sh が表向き完走しても、これらキーワードがログに出ていれば実環境では
 # ユーザーに見えるエラーが発生しているので、ここで明示的に弾く。
@@ -117,7 +117,7 @@ printf '━━━━━━━━━━━━━━━━━━━━━━━━
 # unbound variable で死んでいないことだけを検証する（set -u 違反の検出）。
 PIPE_INSTALL_LOG="/tmp/pipe-install.log"
 cat /workspace/install.sh |
-  AGENTIC_BOOTSTRAP_REF="non-existent-ref-for-trap-regression-$$" bash -s -- local \
+  AGENTYARD_REF="non-existent-ref-for-trap-regression-$$" bash -s -- local \
     >"$PIPE_INSTALL_LOG" 2>&1 || true
 if grep -qE "unbound variable" "$PIPE_INSTALL_LOG"; then
   echo "❌ install.sh emitted 'unbound variable' under pipe execution:"

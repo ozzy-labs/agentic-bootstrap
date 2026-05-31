@@ -2,8 +2,8 @@
 set -euo pipefail
 
 readonly REPO_OWNER="ozzy-labs"
-readonly REPO_NAME="agentic-bootstrap"
-readonly DEFAULT_REF="${AGENTIC_BOOTSTRAP_REF:-${BOOTSTRAP_REF:-main}}"
+readonly REPO_NAME="agentyard"
+readonly DEFAULT_REF="${AGENTYARD_REF:-${AGENTIC_BOOTSTRAP_REF:-${BOOTSTRAP_REF:-main}}}"
 
 # OS 判定: install.sh local / all が dispatch 先のスクリプトを切り替えるために使う
 detect_os() {
@@ -18,7 +18,7 @@ usage() {
   cat <<'EOF'
 Usage:
   ./install.sh [zsh|local|all|update|doctor] [--ref <git-ref>] [--auto|--interactive]
-  curl -fsSL https://raw.githubusercontent.com/ozzy-labs/agentic-bootstrap/main/install.sh | bash -s -- [zsh|local|all|update|doctor] [--ref <git-ref>] [--auto|--interactive]
+  curl -fsSL https://raw.githubusercontent.com/ozzy-labs/agentyard/main/install.sh | bash -s -- [zsh|local|all|update|doctor] [--ref <git-ref>] [--auto|--interactive]
 
 Commands:
   zsh     Run scripts/setup-zsh-linux.sh (Linux/WSL only; macOS skips with a notice)
@@ -36,8 +36,8 @@ Options:
   -h, --help       Show this help message
 
 Environment:
-  AGENTIC_BOOTSTRAP_REF  Default git ref to download when running remotely
-                         (legacy: BOOTSTRAP_REF is honored as a fallback)
+  AGENTYARD_REF          Default git ref to download when running remotely
+                         (legacy: AGENTIC_BOOTSTRAP_REF, BOOTSTRAP_REF are honored as fallbacks)
   SETUP_LOG              Passed through to the underlying setup/update script(s)
 EOF
 }
@@ -143,10 +143,10 @@ main() {
       shift
       ;;
     -y | --auto)
-      export AGENTIC_BOOTSTRAP_ASSUME_YES=1
+      export AGENTYARD_ASSUME_YES=1
       ;;
     --interactive)
-      export AGENTIC_BOOTSTRAP_ASSUME_YES=0
+      export AGENTYARD_ASSUME_YES=0
       ;;
     -h | --help)
       usage
