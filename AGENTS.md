@@ -11,28 +11,35 @@
 
 ## プロジェクト概要
 
-`<project-name>`: <description>
+`agentic-bootstrap`: Bash 製の開発ホストプロビジョナ (Linux/WSL2/macOS)。AI エージェント駆動開発に必要なツール群を一発で導入する。
 
 ## Tech Stack
 
-- Runtime: Node.js (ESM)
-- Package manager: pnpm
-- Version management: mise (`.mise.toml`)
+- Language: Bash (POSIX-friendly, bash 3.2+ compat on macOS, 4+ on Linux)
+- Hooks: lefthook
+- Tests: bats (unit), shell (smoke), Docker (integration)
+- Lint: shellcheck, shfmt, markdownlint, yamllint, actionlint, gitleaks, trivy, commitlint
+- Version management: mise (`.mise.toml` で repo / `.config/mise/config.toml` で global)
 
 ## 主要コマンド
 
 ```bash
-pnpm install               # 依存関係インストール
-pnpm run dev               # 開発サーバー起動
-pnpm run build             # プロダクションビルド
+./install.sh local         # ローカルホストへのセットアップ
+./install.sh update        # 既存ツール一括更新
+./install.sh doctor        # 環境健全性チェック
+lefthook run pre-commit    # 全 lint + format チェック
+bats tests/unit            # unit テスト
+bash tests/smoke/run.sh    # smoke テスト
 ```
 
 ## 検証（必須）
 
 コード変更後、報告前に以下を通すこと:
 
-1. `pnpm run build` — ビルド成功
-2. `pnpm run typecheck` — 型チェック通過
+1. `lefthook run pre-commit` — 全 lint pass
+2. `bash tests/smoke/run.sh` — smoke green
+3. `bats tests/unit` — unit green
+4. （shell/yaml/Dockerfile を変更した場合）integration test も推奨: `bash tests/integration/run.sh`
 
 ## コーディング規約
 
