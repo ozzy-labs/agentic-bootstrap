@@ -205,4 +205,8 @@ main() {
   run_local "$target" "$extracted_dir"
 }
 
-main "$@"
+# Allow this file to be `source`d (e.g. from bats unit tests) without
+# triggering main(). When executed directly, BASH_SOURCE[0] equals $0.
+if [ "${BASH_SOURCE[0]:-$0}" = "$0" ]; then
+  main "$@"
+fi
