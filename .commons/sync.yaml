@@ -1,7 +1,7 @@
 # Auto-updated by commons sync.sh
 # 'pinned' is user-editable — add or remove paths freely
 commit: f628f1f046786fc08775e4691d6840f0710123fc
-synced_at: 2026-05-25T00:53:35Z
+synced_at: 2026-06-01T00:58:36Z
 
 # Skills sync (opt-in). Add adapter ids to skills_adapters and a SHA
 # to skills_commit. The skills repo's main HEAD SHA can be obtained via:
