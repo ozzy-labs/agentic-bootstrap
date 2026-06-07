@@ -4,7 +4,7 @@
 # ozzy-labs/skills#80. 'pinned' is user-editable — add or remove paths
 # freely. 'commit' / 'skills_commit' / 'synced_at' should not be hand-
 # edited; they are rewritten by sync.sh / sync-skills.sh on each push.
-commit: feb31a670788174f06064cb86ce1b0d0f10200ef
+commit: 5fcde5666874736801b444dda33e02318f85dffb
 synced_at: 2026-06-07T03:29:37Z
 
 # Skills sync (opt-in). Add adapter ids to skills_adapters; skills_commit
