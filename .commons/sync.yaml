@@ -11,12 +11,6 @@ synced_at: 2026-06-07T03:29:37Z
 # is bumped by /sync-consumers --source=skills. The skills repo's main
 # HEAD SHA can be obtained via:
 #   gh api repos/ozzy-labs/skills/commits/main --jq .sha
-skills_commit: f039aa67d7af8e33146d0f32c0bc7d455a16d681
-skills_adapters:
-  - claude-code
-  - codex-cli
-  - gemini-cli
-  - copilot
 pinned:
   - .devcontainer/Dockerfile
   - .devcontainer/devcontainer.json
