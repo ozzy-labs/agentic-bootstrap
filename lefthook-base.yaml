@@ -24,7 +24,7 @@
 #         glob: "**/*.sh"
 #         run: <your replacement command>
 #
-# See ozzy-labs/agentyard#130 for a working example.
+# See ozzy-labs/agentic-bootstrap#130 for a working example.
 
 glob_matcher: doublestar
 
