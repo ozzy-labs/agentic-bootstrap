@@ -1,0 +1,78 @@
+# begin: ozzy-labs/commons
+name: Sync commons
+
+# Manual sync of shared configuration from ozzy-labs/commons.
+#
+# Runs on manual dispatch only. The legacy cron-based weekly schedule was
+# disabled as part of the push-mode transition (ozzy-labs/skills epic #80,
+# Step 1) to avoid dual-write races with `/sync-consumers`. Going forward,
+# updates are pushed from ozzy-labs/commons via `/sync-consumers`; this
+# workflow remains for ad-hoc fallback only (workflow_dispatch).
+#
+# When invoked, if the upstream commons repo has changes that are not yet
+# reflected in this repo (per `.commons/sync.yaml`, minus `pinned` entries),
+# the workflow runs `sync.sh --yes` and opens a pull request with the
+# resulting diff. The PR is never auto-merged; review it.
+#
+# Prerequisites in the consumer repo:
+#   - Workflow permissions must allow creating PRs (usually set by
+#     commons/setup-repo.sh)
+#   - `.commons/sync.yaml` exists (created on first manual sync.sh run).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Sync commons defaults
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v6
+
+      - name: Clone commons
+        uses: actions/checkout@v6
+        with:
+          repository: ozzy-labs/commons
+          path: .sync-commons
+          fetch-depth: 1
+
+      - name: Detect diff and run sync
+        id: sync
+        run: |
+          set -e
+          if bash .sync-commons/sync.sh --check "$GITHUB_WORKSPACE"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to sync."
+            exit 0
+          fi
+          bash .sync-commons/sync.sh --yes --quiet "$GITHUB_WORKSPACE"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Remove temporary clone
+        if: steps.sync.outputs.changed == 'true'
+        run: rm -rf .sync-commons
+
+      - name: Create Pull Request
+        if: steps.sync.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: chore/sync-commons
+          base: main
+          commit-message: |
+            chore: sync commons defaults
+
+            Automated sync from ozzy-labs/commons.
+          title: "chore: sync commons defaults"
+          body: |
+            Automated sync from [ozzy-labs/commons](https://github.com/ozzy-labs/commons).
+
+            Files listed under `pinned` in `.commons/sync.yaml` are excluded.
+
+            Triggered by the scheduled `Sync commons` workflow. Review the diff and merge when appropriate.
+          labels: chore
+          delete-branch: true
+# end: ozzy-labs/commons
