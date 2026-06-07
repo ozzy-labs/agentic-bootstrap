@@ -18,7 +18,6 @@ pinned:
   - .devcontainer/initialize.sh
   - .gemini/settings.json
   - .github/workflows/pr-check.yaml
-  - .github/workflows/sync-commons.yaml
   - .gitignore
   - .markdownlint-cli2.yaml
   - .mise.toml
