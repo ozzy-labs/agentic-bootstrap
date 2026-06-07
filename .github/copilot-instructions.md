@@ -46,6 +46,7 @@ mise exec -- lefthook run pre-commit --all-files
 - `pr` — コミット済みの変更をリモートにプッシュし、PR を作成・更新する。
 - `review` — コード変更や PR を 11 観点（perspectives）でレビューし、JSON 構造化出力 + 人間可読レポートで報告する。quick / deep モードを切替可能。PR 番号またはワーキングツリー差分を入力に取る。
 - `ship` — lint・コミット・PR 作成を一括実行する。変更に対して lint → コミット → PR 作成を順に実行する統合パイプライン。
+- `sync-consumers` — skills / commons の更新を sync-targets.yaml に記載された 14 consumer リポへ並列に push し、PR auto-merge まで完結させる。drive の Phase Final 仕様（worktree drift 検出 + cleanup）を踏襲する push 型同期スキル。
 - `test` — ビルド・テスト・型チェックを実行し、結果を報告する。
 - `topics` — GitHub topics 候補を制約検証・人気度測定・broad+narrow / 単数複数比較・ozzy-labs 慣行ハードコードで選定し、`gh repo edit --add-topic` で適用する。スコープは ozzy-labs 内利用のみ。
 
