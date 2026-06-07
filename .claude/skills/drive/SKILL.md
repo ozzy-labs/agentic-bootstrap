@@ -37,7 +37,15 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch, AskUser
 - **isolation:** `"worktree"`（必須）
 - **subagent_type:** `general-purpose`
 - **prompt:** subagent から slash command は呼べないため、`.agents/skills/drive/SKILL.md` を Read させ、target #N について単一モードのワークフロー（Phase 1-5）を実行するよう指示する。`--merge` 指定時は Phase 4 まで完了し、自 PR の merged まで polling して終了させる。最終結果は JSON で返させる
-- **main への checkout 禁止（必ず prompt に明記）:** subagent は自 worktree branch で完結する。`git checkout main` / `git switch main` / `git checkout HEAD~` 等で HEAD を移動させない。worktree は親側で削除されるため main へ戻す必要はない。これを怠ると共有 git directory 経由で親 worktree の `HEAD` / `index` が汚染される（[Issue #66](https://github.com/ozzy-labs/skills/issues/66) 参照）
+- **main / 親側 ref への書き込み禁止（必ず prompt に明記）:** subagent は自 worktree branch で完結する。以下のコマンドは全て**禁止** — 親 worktree の `HEAD` / `index` / `refs/heads/main` を共有 git directory 経由で汚染する ([Issue #66](https://github.com/ozzy-labs/skills/issues/66) / [Issue #89](https://github.com/ozzy-labs/skills/issues/89))。worktree は親側で削除されるため main へ戻す必要はない:
+  - `git checkout main` / `git switch main` / `git checkout HEAD~` (HEAD 移動)
+  - `git symbolic-ref HEAD refs/heads/main` (HEAD を符号的に main へ切替)
+  - `git update-ref refs/heads/main <sha>` (main ref を直接書き換え)
+  - `git reset --hard origin/main` (自 branch が main を指す状態で実行すると間接的に親に伝播)
+  - `git branch -m <new-name>` (worktree-branch binding を壊す)
+  - `git push origin main` / `git push origin HEAD:main`
+- **戻り値 JSON に `final_head_state` を必須化（必ず prompt に明記）:** subagent 完了時、自 worktree の `git symbolic-ref HEAD` / `git rev-parse HEAD` / `git status --short` 出力を戻り値 JSON の `final_head_state` フィールドに含める。`symbolic_ref` が `refs/heads/main` または空（detached）なら親側 Phase Final-1 で warning。これは「main checkout なし」の自己申告と実態が乖離した観察 ([Issue #89](https://github.com/ozzy-labs/skills/issues/89)) への対策で、self-attestation を検証可能にする
+- **Edit / Write tool の `file_path` 制約（必ず prompt に明記）:** subagent の Edit / Write tool に渡す `file_path` は必ず自 worktree path（`.claude/worktrees/agent-<id>/`）で始まる absolute path に限定する。親 worktree path（repo root 直下で `.claude/worktrees/` を含まない path）を渡してはならない。Phase 20 (opshub) で観察した汚染は **`cd` ではなく Edit/Write の絶対 path 引数経由**で発生したため、本制約が決定的。実行前に `pwd` で自 worktree path を確認してから tool に渡すと安全（[Issue #77](https://github.com/ozzy-labs/skills/issues/77)）
 - **`--delete-branch` 禁止（必ず prompt に明記）:** subagent が auto-merge をセットする際、`gh pr merge --auto --squash` までに留め、`--delete-branch` は付けない。自 worktree が握る branch を削除しようとして `fatal: '<branch>' is already used by worktree at ...` エラーになる。ローカル branch / worktree の整理は親側 Phase Final で一括処理する（[Issue #69](https://github.com/ozzy-labs/skills/issues/69)）
 - **scope 外波及チェック（必ず prompt に明記）:** subagent が enum / field / CLI flag を追加した場合、リポ全体で対応する help 文字列・エラーメッセージ・サンプル/docs を grep し、同期を確認する。同期されていなければ可能なら自 PR に含める。自 scope を明確に超える場合は戻り値 JSON の `cross_cutting_gaps: string[]` フィールドに `<file>:<line> — <symbol> not synced` 形式で記録し、親の Phase Final-3 audit に集約する（[Issue #70](https://github.com/ozzy-labs/skills/issues/70)）
 - **依存元 wave がある場合のベースブランチ:**
